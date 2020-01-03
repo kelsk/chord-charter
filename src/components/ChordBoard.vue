@@ -9,19 +9,21 @@
     {{board}}
     </div>
   </div>
-    <label for="pressakey">Play a Note</label>
-    <input id="pressakey" v-on:keypress="playChord($event)" type="text"/>
-    <ul>
-      <li v-bind:key="chord.id" v-for="chord in chordProgression">
+    <button v-on:click="startRecording">Start Recording</button>
+    <button v-on:click="stopRecording">Stop Recording</button>
+    <p>
+      Chord progression:
+      <span v-bind:key="chord.id" v-for="chord in chordProgression">
         {{chord}}
-      </li>
-    </ul>
+      </span>
+    </p>
+    <button v-on:click="writeChordProgression">Add Chord Progression</button>
   </div>
 </template>
 
 <script>
 import Tone from 'tone'
-import keyboard from '../main.js'
+import keyboard, { db } from '../main.js'
 
 export default {
   name: 'ChordBoard',
@@ -32,6 +34,7 @@ export default {
   },
   data() {
     return {
+      recording: false,
     toggleBoardText: "View Qwerty Keys",
     charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
@@ -51,10 +54,21 @@ export default {
       chordProgression: []
     }
   },
-  updated(){
+  mounted(){
+      window.addEventListener("keypress", e => {
+        if (this.recording === true) {
+        this.playChord(e);
+        }
+      });
 
   },
   methods: {
+    startRecording() {
+      this.recording = true;
+    },
+    stopRecording() {
+      this.recording = false
+    },
     playChord(e) {
       const note = e.key.toLowerCase();
       this.charToNote.forEach((char) => {
@@ -79,6 +93,14 @@ export default {
         })
       this.toggleBoardText = "View Qwerty Keys";
       }
+    },
+    writeChordProgression() {
+      let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
+      submittedChordProgression.set({
+        chords: this.chordProgression,
+      }, {merge: true}).then(() => {
+        window.console.log('Added chord prog for ', submittedChordProgression.id)
+      })
     }
   }
 }
