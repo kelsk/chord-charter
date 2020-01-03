@@ -1,6 +1,14 @@
 <template>
   <div id="title">
     I'm the Chord Board for {{username}}
+  <div>
+    <button v-on:click="toggleQwertyKeyboard">
+      {{toggleBoardText}}
+    </button>
+    <div class="simple-keyboard">
+    {{board}}
+    </div>
+  </div>
     <label for="pressakey">Play a Note</label>
     <input id="pressakey" v-on:keypress="playChord($event)" type="text"/>
     <ul>
@@ -13,15 +21,19 @@
 
 <script>
 import Tone from 'tone'
+import keyboard from '../main.js'
 
 export default {
   name: 'ChordBoard',
   props: {
-    username: String
+    username: String,
+    board: keyboard,
+    boardname: String,
   },
   data() {
     return {
-      charToNote: [
+    toggleBoardText: "View Qwerty Keys",
+    charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
         { w: ['C#4'], chord: 'C#' },
         { s: ['D4', 'F4', 'A4'], chord: 'Dm'},
@@ -54,6 +66,19 @@ export default {
           window.console.log(this.chordProgression)
         }
       })
+    },
+    toggleQwertyKeyboard() {
+      if (keyboard.getOptions().layoutName === this.boardname) {
+        keyboard.setOptions({
+          layoutName: "qwerty"
+        })
+      this.toggleBoardText = "View Chords";
+      } else {
+        keyboard.setOptions({
+          layoutName: this.boardname
+        })
+      this.toggleBoardText = "View Qwerty Keys";
+      }
     }
   }
 }

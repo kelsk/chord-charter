@@ -2,7 +2,7 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <ChordBoard username="Kelsey" />
+    <ChordBoard boardname="default" username="Kelsey" />
   </div>
 </template>
 
