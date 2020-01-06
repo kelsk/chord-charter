@@ -6,7 +6,7 @@
       {{toggleBoardText}}
     </button>
     <div class="simple-keyboard">
-    {{board}}
+    {{this.keyboard}}
     </div>
   </div>
     <button v-on:click="startRecording">Start Recording</button>
@@ -23,17 +23,20 @@
 
 <script>
 import Tone from 'tone'
-import keyboard, { db } from '../main.js'
+import Keyboard from 'simple-keyboard'
+import 'simple-keyboard/build/css/index.css'
+import { db } from '../main.js'
 
 export default {
   name: 'ChordBoard',
   props: {
     username: String,
-    board: keyboard,
-    boardname: String,
   },
-  data() {
+data() {
     return {
+      keyboard: this.$store.state.keyboard,
+      boardname: 'default',
+      chordBoardLayout: [],
       recording: false,
     toggleBoardText: "View Qwerty Keys",
     charToNote: [
@@ -54,20 +57,70 @@ export default {
       chordProgression: []
     }
   },
-  mounted(){
+  created(){
+    window.console.log('created')
+    window.console.log('keyboard from state: ', this.$store.state.keyboard)
+      this.loadChordBoard('default');
       window.addEventListener("keypress", e => {
         if (this.recording === true) {
         this.playChord(e);
         }
       });
-
   },
   methods: {
     startRecording() {
+      window.console.log('Double checking state by clicking recording button: ', this.$store.state.keyboard)
       this.recording = true;
     },
     stopRecording() {
       this.recording = false
+    },
+    loadChordBoard(chordboardname) {
+      db.collection('chordboards').doc(chordboardname).get()
+      .then(doc => {
+        let layoutPattern = [];
+        if (chordboardname === 'qwerty') {
+          layoutPattern = doc.data().qwerty;
+          window.console.log('QWERTY!!! ran LoadChordBoard !!! and got: ', layoutPattern);
+          window.console.log('QWERTY!!! doc data is: ', doc.data());
+          this.$store.commit('toggle', new Keyboard({
+          layout: {
+            'qwerty': layoutPattern
+          },
+          layoutName: chordboardname
+        }))
+        window.console.log('QWERTY!!! loaded chord board and added this to state ', this.$store.state.keyboard);
+        } else {
+          let keys = doc.data().keys;
+          let row1 = keys.splice(0, 10);
+          let rowString = '';
+          row1.forEach(item => {
+            rowString += item.chord + ' ';
+          })
+          layoutPattern.push(rowString);
+          rowString = ' ';
+          let row2 = keys.splice(0, 9);
+          row2.forEach(item => {
+            rowString += item.chord + ' ';
+          })
+          layoutPattern.push(rowString);
+          rowString = ' ';
+          let row3 = keys.splice(0, 7);
+          row3.forEach(item => {
+            rowString += item.chord + ' ';
+          })
+          layoutPattern.push(rowString);
+        this.chordBoardLayout = layoutPattern;
+        this.boardname = chordboardname;
+        this.$store.commit('toggle', new Keyboard({
+          layout: {
+            'default': layoutPattern
+          },
+          layoutName: chordboardname
+        }))
+        window.console.log('DEFAULT loaded chordboard and got ', this.$store.state.keyboard)
+        }
+      })
     },
     playChord(e) {
       const note = e.key.toLowerCase();
@@ -82,17 +135,19 @@ export default {
       })
     },
     toggleQwertyKeyboard() {
-      if (keyboard.getOptions().layoutName === this.boardname) {
-        keyboard.setOptions({
-          layoutName: "qwerty"
-        })
+      let keyboard = this.$store.state.keyboard;
+      let keyboardName = keyboard.getOptions().layoutName;
+      window.console.log('Keyboard: ', keyboardName)
+      if (keyboardName !== 'qwerty') {
+        window.console.log('toggleQwertyKeyboard: Keyboard layout name', keyboard.layoutName)
+        // window.console.log('toggleQwertyKeyboard: Boardname: ', this.boardname)
+      this.loadChordBoard('qwerty');
       this.toggleBoardText = "View Chords";
       } else {
-        keyboard.setOptions({
-          layoutName: this.boardname
-        })
+      this.loadChordBoard('default');
       this.toggleBoardText = "View Qwerty Keys";
       }
+      window.console.log('ToggleQwertyKeyboard: keyboard ', this.keyboard);
     },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)

@@ -4,9 +4,10 @@ import App from './App.vue';
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import Vuex from 'vuex';
+// import Keyboard from 'simple-keyboard';
+// import 'simple-keyboard/build/css/index.css'
 
-import Keyboard from 'simple-keyboard'
-import 'simple-keyboard/build/css/index.css'
 
 
 const firebaseConfig = {
@@ -20,6 +21,8 @@ const firebaseConfig = {
   measurementId: "G-HJR8NWKFX1"
 };
 firebase.initializeApp(firebaseConfig)
+
+Vue.use(Vuex);
 Vue.use(firestorePlugin)
 export const db = firebase.firestore()
 
@@ -29,25 +32,24 @@ new Vue({
   render: h => h(App),
 }).$mount('#app')
 
+
 // KEYBOARD SOURCE:
 // Francisco Hodge simple-keyboard
 // https://franciscohodge.com/projects/simple-keyboard/getting-started/
 // installed on 1/3/2020
+// let keyboard = new Keyboard({
+//   layout: {
+//     'default': ['0 1 2 3 4 5 6 7 8 9',
+//     ' 10 11 12 13 14 15 16 17 18',
+//       ' 19 20 21 22 23 24 25'],
+//     'qwerty': [
+//       'q w e r t y u i o p',
+//       ' a s d f g h j k l',
+//       ' z x c v b n m '
+//     ]
+//   },
+//   layoutName: "default"
+// })
 
-let keyboard = new Keyboard({
-  layout: {
-    'default': [
-      'C7 D7 Eb7 E7 F7 G7 Ab7 A7 Bb7 B7',
-      ' C Dm Em F G Am Bb Bm C7',
-      ' Cm D E Fm Gm A Bbm '
-    ],
-    'qwerty': [
-      'q w e r t y u i o p',
-      ' a s d f g h j k l',
-      ' z x c v b n m '
-    ]
-  },
-  layoutName: "default"
-})
 
-export default keyboard;
+// export default keyboard;

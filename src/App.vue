@@ -1,6 +1,9 @@
 <template>
   <div id="app">
     <HelloWorld msg="Vue Links"/>
+    <p>
+      Keyboard: {{keyboard}}
+    </p>
     <ChordBoard boardname="default" username="Kelsey" />
   </div>
 </template>
@@ -8,13 +11,15 @@
 <script>
 import HelloWorld from './components/HelloWorld.vue'
 import ChordBoard from './components/ChordBoard.vue'
+import store from './store.js'
 
 export default {
   name: 'app',
+  store,
   components: {
     HelloWorld,
     ChordBoard
-  }
+  },
 }
 </script>
 
