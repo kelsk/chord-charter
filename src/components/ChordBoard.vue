@@ -2,9 +2,11 @@
   <div id="title">
     I'm the Chord Board for {{username}}
   <div>
-    <button v-on:click="toggleQwertyKeyboard">
-      {{toggleBoardText}}
+    <li v-bind:key="board.id" v-for="board in chordboards">
+    <button v-on:click="toggleQwertyKeyboard(board.key)">
+      {{board.key}}
     </button>
+    </li>
     <div class="simple-keyboard">
     {{this.keyboard}}
     </div>
@@ -34,9 +36,15 @@ export default {
   },
 data() {
     return {
+      // chordboards should populate
+      // maybe using state
+      // from the user's total chordboards
+      chordboards: [
+        {key: 'default'},
+        {key: 'qwerty'}
+      ],
       keyboard: this.$store.state.keyboard,
       boardname: 'default',
-      chordBoardLayout: [],
       recording: false,
     toggleBoardText: "View Qwerty Keys",
     charToNote: [
@@ -58,18 +66,15 @@ data() {
     }
   },
   created(){
-    window.console.log('created')
-    window.console.log('keyboard from state: ', this.$store.state.keyboard)
-      this.loadChordBoard('default');
-      window.addEventListener("keypress", e => {
-        if (this.recording === true) {
-        this.playChord(e);
-        }
-      });
+    this.loadChordBoard('default');
+    window.addEventListener("keypress", e => {
+      if (this.recording === true) {
+      this.playChord(e);
+      }
+    });
   },
   methods: {
     startRecording() {
-      window.console.log('Double checking state by clicking recording button: ', this.$store.state.keyboard)
       this.recording = true;
     },
     stopRecording() {
@@ -81,15 +86,12 @@ data() {
         let layoutPattern = [];
         if (chordboardname === 'qwerty') {
           layoutPattern = doc.data().qwerty;
-          window.console.log('QWERTY!!! ran LoadChordBoard !!! and got: ', layoutPattern);
-          window.console.log('QWERTY!!! doc data is: ', doc.data());
           this.$store.commit('toggle', new Keyboard({
           layout: {
             'qwerty': layoutPattern
           },
           layoutName: chordboardname
         }))
-        window.console.log('QWERTY!!! loaded chord board and added this to state ', this.$store.state.keyboard);
         } else {
           let keys = doc.data().keys;
           let row1 = keys.splice(0, 10);
@@ -110,15 +112,13 @@ data() {
             rowString += item.chord + ' ';
           })
           layoutPattern.push(rowString);
-        this.chordBoardLayout = layoutPattern;
         this.boardname = chordboardname;
         this.$store.commit('toggle', new Keyboard({
           layout: {
-            'default': layoutPattern
+            [chordboardname]: layoutPattern
           },
           layoutName: chordboardname
         }))
-        window.console.log('DEFAULT loaded chordboard and got ', this.$store.state.keyboard)
         }
       })
     },
@@ -134,20 +134,8 @@ data() {
         }
       })
     },
-    toggleQwertyKeyboard() {
-      let keyboard = this.$store.state.keyboard;
-      let keyboardName = keyboard.getOptions().layoutName;
-      window.console.log('Keyboard: ', keyboardName)
-      if (keyboardName !== 'qwerty') {
-        window.console.log('toggleQwertyKeyboard: Keyboard layout name', keyboard.layoutName)
-        // window.console.log('toggleQwertyKeyboard: Boardname: ', this.boardname)
-      this.loadChordBoard('qwerty');
-      this.toggleBoardText = "View Chords";
-      } else {
-      this.loadChordBoard('default');
-      this.toggleBoardText = "View Qwerty Keys";
-      }
-      window.console.log('ToggleQwertyKeyboard: keyboard ', this.keyboard);
+    toggleQwertyKeyboard(boardname) {
+      this.loadChordBoard(boardname);
     },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
