@@ -1,24 +1,23 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Vue Links"/>
     <p>
-      Keyboard: {{keyboard}}
+      <router-link to="/charts">Charts</router-link>
+      <router-link to="/chordboards">Chordboards</router-link>
+      <router-link to="/hello">Vue Links</router-link>
     </p>
-    <ChordBoard boardname="default" username="Kelsey" />
+    <p>
+      <router-view></router-view>
+    </p>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import ChordBoard from './components/ChordBoard.vue'
 import store from './store.js'
 
 export default {
   name: 'app',
   store,
   components: {
-    HelloWorld,
-    ChordBoard
   },
 }
 </script>
