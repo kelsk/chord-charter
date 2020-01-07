@@ -1,18 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld msg="Vue Links"/>
+    <p>
+      Keyboard: {{keyboard}}
+    </p>
+    <ChordBoard boardname="default" username="Kelsey" />
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import ChordBoard from './components/ChordBoard.vue'
+import store from './store.js'
 
 export default {
   name: 'app',
+  store,
   components: {
-    HelloWorld
-  }
+    HelloWorld,
+    ChordBoard
+  },
 }
 </script>
 
@@ -21,8 +28,7 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  text-align: left;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
