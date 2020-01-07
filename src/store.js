@@ -12,6 +12,10 @@ const store = new Vuex.Store({
     toggle(state, n) {
       state.keyboard = n
       window.console.log('successfully stored state: ', n)
+    },
+    updateChordBoard(state, n) {
+      state.keyboard = n;
+      window.console.log('successfully updated state: ', n)
     }
   }
 })

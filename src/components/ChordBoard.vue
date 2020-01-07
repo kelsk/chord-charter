@@ -10,6 +10,10 @@
     <div class="simple-keyboard">
     {{this.keyboard}}
     </div>
+  <EditKeyboard 
+    v-bind:keyboard="this.keyboard"
+    v-bind:keys="this.keys">
+  </EditKeyboard>
   </div>
     <button v-on:click="startRecording">Start Recording</button>
     <button v-on:click="stopRecording">Stop Recording</button>
@@ -28,13 +32,19 @@ import Tone from 'tone'
 import Keyboard from 'simple-keyboard'
 import 'simple-keyboard/build/css/index.css'
 import { db } from '../main.js'
+import store from '../store.js'
+import EditKeyboard from './EditChordBoardForm'
 
 export default {
   name: 'ChordBoard',
+  store,
+  components: {
+    EditKeyboard
+  },
   props: {
     username: String,
   },
-data() {
+  data() {
     return {
       // chordboards should populate
       // maybe using state
@@ -43,6 +53,7 @@ data() {
         {key: 'default'},
         {key: 'qwerty'}
       ],
+      keys: [],
       keyboard: this.$store.state.keyboard,
       boardname: 'default',
       recording: false,
@@ -73,6 +84,9 @@ data() {
       }
     });
   },
+  mounted() {
+    window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard)
+  },
   methods: {
     startRecording() {
       this.recording = true;
@@ -94,6 +108,7 @@ data() {
         }))
         } else {
           let keys = doc.data().keys;
+          this.keys = doc.data().keys;
           let row1 = keys.splice(0, 10);
           let rowString = '';
           row1.forEach(item => {
@@ -121,6 +136,9 @@ data() {
         }))
         }
       })
+    },
+    editChord() {
+      window.console.log('Editing chordboard: ', this.keyboard.getOptions().layoutName)
     },
     playChord(e) {
       const note = e.key.toLowerCase();
