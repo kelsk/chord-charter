@@ -5,6 +5,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 // import Keyboard from 'simple-keyboard';
 // import 'simple-keyboard/build/css/index.css'
 
@@ -23,6 +24,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 Vue.use(Vuex);
+Vue.use(VueRouter);
 Vue.use(firestorePlugin)
 export const db = firebase.firestore()
 
