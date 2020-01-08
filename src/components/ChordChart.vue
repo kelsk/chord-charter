@@ -92,7 +92,7 @@ export default {
         measure.push(this.chart.beats[i]);
         window.console.log('i = ', i);
         window.console.log('chord = ', this.chart.beats[i]);
-        if ( j < 2 ) i++;
+        if ( j < beatsPerMeasure - 1 ) i++;
         }
         this.measures.push(measure);
       }
@@ -103,7 +103,7 @@ export default {
       this.measures.forEach(measure => {
         let currentBeat = measure[0];
         window.console.log(currentBeat);
-        for (let i=1; i < measure.length; i++) {
+        for (let i=1; i < this.chart.timeSig.upper; i++) {
           if (currentBeat === measure[i]) {
             measure[i] = ''
           } else {
