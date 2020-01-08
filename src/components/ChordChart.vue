@@ -38,7 +38,7 @@
     </section>
     <button v-on:click="populateMeasures">
       Populate Measures
-      </button>
+    </button>
   </div>
 </template>
 
