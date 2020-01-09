@@ -104,6 +104,7 @@ export default {
             lower: 4
           }
         },
+        content: {
         beats: [
           '', '', 'G', 
           'C', 'C', 'C',
@@ -116,16 +117,17 @@ export default {
           'C', 'C', 'C'
         ],
         lyrics: [
-          ' ', ' ', 'happy',
-          'birth','day','to',
-          'you',' ','happy',
-          'birth','day','to',
-          'you',' ','happy',
-          'birth','day','dear',
-          'SOME','ONE','happy',
-          'birth','day','to',
-          'you', ' ', ' '
+          'happy',
+          'birth day to',
+          'you, happy',
+          'birth day to',
+          'you, happy',
+          'birth day dear',
+          'SOMEONE, happy',
+          'birth day to',
+          'you'
         ]
+        }
       }
     }
   },
@@ -147,15 +149,15 @@ export default {
   // this should be a cloud function
     populateMeasures() {
       const beatsPerMeasure = this.chart.details.timeSig.upper;
-      for (let i=0; i<this.chart.beats.length; i++) {
+      for (let i=0; i<this.chart.content.beats.length; i++) {
         let measure = {};
         let beats = [];
         let lyrics = [];
         for (let j=0; j<beatsPerMeasure; j++) {
-        beats.push(this.chart.beats[i]);
-        lyrics.push(this.chart.lyrics[i]);
+        beats.push(this.chart.content.beats[i]);
         if ( j < beatsPerMeasure - 1 ) i++;
         }
+        lyrics.push(this.chart.content.lyrics.shift());
         measure['beats'] = beats;
         measure['lyrics'] = lyrics;
         this.measures.push(measure);
@@ -236,7 +238,6 @@ export default {
 }
 .chart__measure-lyrics {
   padding: 0px 20px 0px 20px;
-  display: grid;
 }
 .lyric {
   font-size: 1rem;
