@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import ChordBoard from './components/ChordBoard.vue';
+import ChordBoards from './views/ChordBoardView.vue';
 import HelloWorld from './components/HelloWorld.vue';
-import ChartLibrary from './components/ChartLibrary.vue';
+import Charts from './views/ChartView.vue';
 
 Vue.use(VueRouter)
 
@@ -15,12 +15,12 @@ const routes = [
   {
     path: '/charts',
     name: 'charts',
-    component: ChartLibrary
+    component: Charts,
   },
   {
     path: '/chordboards',
     name: 'chordboards',
-    component: ChordBoard
+    component: ChordBoards,
   }
 ];
 const router = new VueRouter({

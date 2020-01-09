@@ -1,19 +1,28 @@
 <template>
   <div id="title">
-    I'm the Chord Board for {{username}}
+    Current ChordBoard: {{boardname}}
   <div>
+  <ul>
     <li v-bind:key="board.id" v-for="board in chordboards">
-    <button v-on:click="toggleQwertyKeyboard(board.key)">
-      {{board.key}}
-    </button>
+      <button v-on:click="toggleQwertyKeyboard(board.key)">
+        {{board.key}}
+      </button>
     </li>
-    <div class="simple-keyboard">
-    {{this.keyboard}}
+    <li>
+      <button v-on:click="createNewChordBoard">
+        + 
+      </button>
+    </li>
+  </ul>
+    <div>
+
+      <div class="simple-keyboard"></div>
     </div>
-  <EditKeyboard 
+
+  <!-- <EditKeyboard 
     v-bind:keyboard="this.keyboard"
     v-bind:keys="this.keys">
-  </EditKeyboard>
+  </EditKeyboard> -->
   </div>
     <button v-on:click="startRecording">Start Recording</button>
     <button v-on:click="stopRecording">Stop Recording</button>
@@ -33,17 +42,18 @@ import Keyboard from 'simple-keyboard'
 import 'simple-keyboard/build/css/index.css'
 import { db } from '../main.js'
 import store from '../store.js'
-import EditKeyboard from './EditChordBoardForm'
+// import EditKeyboard from './EditChordBoardForm'
 
 export default {
   name: 'ChordBoard',
   store,
   components: {
-    EditKeyboard
+    // EditKeyboard
   },
   props: {
     username: String,
   },
+  
   data() {
     return {
       // chordboards should populate
@@ -54,11 +64,12 @@ export default {
         {key: 'qwerty'}
       ],
       keys: [],
-      keyboard: this.$store.state.keyboard,
-      boardname: 'default',
+      keyboard: null,
+      boardname: this.$store.state.currentChordBoard,
+      boardLayout: [],
       recording: false,
-    toggleBoardText: "View Qwerty Keys",
-    charToNote: [
+      toggleBoardText: "View Qwerty Keys",
+      charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
         { w: ['C#4'], chord: 'C#' },
         { s: ['D4', 'F4', 'A4'], chord: 'Dm'},
@@ -76,8 +87,23 @@ export default {
       chordProgression: []
     }
   },
+  computed: {
+    
+    // keyboard: {
+    //   get: function() {
+    //     return {}
+    //   },
+    //   set: function () {
+    //   return new Keyboard({
+    //     layout: {
+    //       [this.boardname]: this.boardLayout,
+    //     },
+    //     layoutName: this.boardname,
+    //     })
+    //   },
+    //   }
+  },
   created(){
-    this.loadChordBoard('default');
     window.addEventListener("keypress", e => {
       if (this.recording === true) {
       this.playChord(e);
@@ -85,6 +111,14 @@ export default {
     });
   },
   mounted() {
+    this.keyboard = new Keyboard({
+      layout:{
+        [this.$store.state.currentChordBoard]: this.$store.state.currentChordBoardLayout
+      },
+        layoutName: this.$store.state.currentChordBoard
+    })
+    this.loadChordBoard(this.$store.state.currentChordBoard)
+    window.console.log('keyboard before mounted: ', this.keyboard)
     window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard)
   },
   methods: {
@@ -100,12 +134,7 @@ export default {
         let layoutPattern = [];
         if (chordboardname === 'qwerty') {
           layoutPattern = doc.data().qwerty;
-          this.$store.commit('toggle', new Keyboard({
-          layout: {
-            'qwerty': layoutPattern
-          },
-          layoutName: chordboardname
-        }))
+          
         } else {
           let keys = doc.data().keys;
           this.keys = doc.data().keys;
@@ -127,14 +156,30 @@ export default {
             rowString += item.chord + ' ';
           })
           layoutPattern.push(rowString);
+        }
+
+        this.boardLayout = layoutPattern
         this.boardname = chordboardname;
-        this.$store.commit('toggle', new Keyboard({
+        this.$store.commit('toggle', chordboardname);
+        this.$store.commit('toggleLayout', layoutPattern);
+        this.keyboard.setOptions({
           layout: {
             [chordboardname]: layoutPattern
           },
           layoutName: chordboardname
-        }))
-        }
+        })
+        // this.keyboard = new Keyboard({
+        //   layout: {
+        //     [chordboardname]: layoutPattern
+        //   },
+        //   layoutName: chordboardname          
+        // })
+        // this.$store.commit('toggle', new Keyboard({
+        //   layout: {
+        //     [chordboardname]: layoutPattern
+        //   },
+        //   layoutName: chordboardname
+        // }))
       })
     },
     editChord() {
@@ -154,6 +199,9 @@ export default {
     },
     toggleQwertyKeyboard(boardname) {
       this.loadChordBoard(boardname);
+    },
+    createNewChordBoard() {
+      window.alert('can\'t do that yet :/ ');
     },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
