@@ -1,18 +1,17 @@
 <template>
   <div>
     <h1>
-    Charts
+    Charts {{$route.params.title}}
     </h1>
-    <ChartLibrary></ChartLibrary>
+    <router-view>
+    </router-view>
   </div>
 </template>
 <script>
-import ChartLibrary from '../components/ChartLibrary.vue'
 
 export default {
   name: 'Charts',
   components: {
-    ChartLibrary
   }
 }
 </script>

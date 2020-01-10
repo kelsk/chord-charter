@@ -1,8 +1,15 @@
 <template>
-  <div id="chart" class="chart">
+  <div>
     <!-- <link href="https://fonts.googleapis.com/css?family=Hammersmith+One|Lalezar|Nanum+Pen+Script|Oxygen|Patrick+Hand|Paytone+One|Rajdhani|Titillium+Web|Volkhov|Yanone+Kaffeesatz&display=swap" rel="stylesheet"> -->
     <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
+    <div v-if="chart.error">
+      ERRORRRRR
+    </div>
+    <div v-if="chart.details" id="chart" class="chart">
     <nav class="chart__options">
+      <span>
+        {{$route.params.title}}
+      </span>
       <span>
         Measures per line:
         <input type="number" placeholder="8" max="10" min="1" v-on:change="updateMeasuresPerLine($event)" />
@@ -60,17 +67,17 @@
         </p>
       </div>
     </section>
-    <button v-on:click="populateMeasures">
-      Populate Measures
-    </button>
+
+    </div>
   </div>
 </template>
 
 <script>
+import { db } from '../main.js'
+
 export default {
   name: 'ChordChart',
   mounted() {
-    this.populateMeasures();
   },
   updated() {
     // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
@@ -90,46 +97,63 @@ export default {
       fonts: ['Acme', 'Alata', 'Asap Condensed', 'Boogaloo', 'Calistoga', 'Caveat Brush', 'Fredoka One', 'Tinos'],
       measures: [],
       chart: {
-        style: {
-          font: 'Alata',
-          measuresPerLine: 8,
-        },
-        details: {
-          title: "Happy Birthday",
-          author: 'Kelsey',
-          tempo: 108,
-          keySig: 'C',
-          timeSig: {
-            upper: 3,
-            lower: 4
-          }
-        },
-        content: {
-        beats: [
-          '', '', 'G', 
-          'C', 'C', 'C',
-          'G', 'G', 'G', 
-          'G', 'G', 'G', 
-          'C', 'C', 'C', 
-          'C7', 'C7', 'C7', 
-          'F', 'F', 'F#dim7',
-          'C/G', 'C/G', 'G7', 
-          'C', 'C', 'C'
-        ],
-        lyrics: [
-          'happy',
-          'birth day to',
-          'you, happy',
-          'birth day to',
-          'you, happy',
-          'birth day dear',
-          'SOMEONE, happy',
-          'birth day to',
-          'you'
-        ]
-        }
+        // style: {
+        //   font: 'Alata',
+        //   measuresPerLine: 8,
+        // },
+        // details: {
+        //   title: "Happy Birthday",
+        //   author: 'Kelsey',
+        //   tempo: 108,
+        //   keySig: 'C',
+        //   timeSig: {
+        //     upper: 3,
+        //     lower: 4
+        //   }
+        // },
+        // content: {
+        // beats: [
+        //   '', '', 'G', 
+        //   'C', 'C', 'C',
+        //   'G', 'G', 'G', 
+        //   'G', 'G', 'G', 
+        //   'C', 'C', 'C', 
+        //   'C7', 'C7', 'C7', 
+        //   'F', 'F', 'F#dim7',
+        //   'C/G', 'C/G', 'G7', 
+        //   'C', 'C', 'C'
+        // ],
+        // lyrics: [
+        //   'happy',
+        //   'birth day to',
+        //   'you, happy',
+        //   'birth day to',
+        //   'you, happy',
+        //   'birth day dear',
+        //   'SOMEONE, happy',
+        //   'birth day to',
+        //   'you'
+        // ]
+        // }
       }
     }
+  },
+  beforeCreate() {
+    const route = this.$route.params.title;
+    db.collection('chordcharts').doc(route).get()
+    .then(response => {
+      const chart = response.data();
+      if (chart.details.title) {
+        this.chart = chart;
+        this.populateMeasures();
+      } else {
+        this.chart.error = "Chart doesn't exist"
+      }
+      window.console.log('chart: ', this.chart);
+    })
+    .catch(error => {
+      window.console.log('Error: ', error)
+    })
   },
   methods: {
     updateFont(font) {
@@ -186,13 +210,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .chart {
   text-align: center;
   font-size: 2rem;
 }
 .chart__options {
   height: 3rem;
+  font-size: 1rem;
 }
 .chart__header {
   height: 3rem;
