@@ -6,6 +6,11 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     keyboard: {},
+    currentChart: {
+      details: {
+        title: ''
+      }
+    },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' h e l l o   w o r l d '],
     message: 'store state'
@@ -22,6 +27,11 @@ const store = new Vuex.Store({
     updateChordBoard(state, n) {
       state.keyboard = n;
       window.console.log('successfully updated state: ', n)
+    },
+    editChart(state, updates) {
+      state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
+      window.console.log('successfully stored state: ', state.currentChart)
+
     }
   }
 })
