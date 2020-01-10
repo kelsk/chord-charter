@@ -7,9 +7,20 @@ const store = new Vuex.Store({
   state: {
     keyboard: {},
     currentChart: {
+      // set with defaults
       details: {
-        title: ''
-      }
+        title: 'untitled',
+        timeSig: {
+          upper: 4,
+          lower: 4
+        }
+      },
+      content: {
+      },
+      style: {
+        measuresPerLine: 8,
+        font: "'Alata'"
+      },
     },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' h e l l o   w o r l d '],
@@ -29,9 +40,10 @@ const store = new Vuex.Store({
       window.console.log('successfully updated state: ', n)
     },
     editChart(state, updates) {
+      window.console.log('store var updates: ', updates);
+      window.console.log('currentChart: ', state.currentChart);
       state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
       window.console.log('successfully stored state: ', state.currentChart)
-
     }
   }
 })

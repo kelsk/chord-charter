@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- <link href="https://fonts.googleapis.com/css?family=Hammersmith+One|Lalezar|Nanum+Pen+Script|Oxygen|Patrick+Hand|Paytone+One|Rajdhani|Titillium+Web|Volkhov|Yanone+Kaffeesatz&display=swap" rel="stylesheet"> -->
-    <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
     <div v-if="chart.error">
       ERRORRRRR
     </div>
@@ -77,6 +76,9 @@ import { db } from '../main.js'
 
 export default {
   name: 'ChordChart',
+  props: {
+    fonts: Array
+  },
   mounted() {
   },
   updated() {
@@ -94,7 +96,6 @@ export default {
   },
   data() {
     return {
-      fonts: ['Acme', 'Alata', 'Asap Condensed', 'Boogaloo', 'Calistoga', 'Caveat Brush', 'Fredoka One', 'Tinos'],
       measures: [],
       chart: {
         // style: {
