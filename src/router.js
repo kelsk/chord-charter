@@ -18,6 +18,11 @@ const routes = [
     component: HelloWorld
   },
   {
+    path: '/chordboards',
+    name: 'chordboards',
+    component: ChordBoards,
+  },
+  {
     path: '/charts',
     name: 'charts',
     component: Charts,
@@ -53,11 +58,7 @@ const routes = [
     component: NewChordChart
   },
 
-  {
-    path: '/chordboards',
-    name: 'chordboards',
-    component: ChordBoards,
-  }
+
 ];
 const router = new VueRouter({
   routes
