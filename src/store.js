@@ -16,6 +16,8 @@ const store = new Vuex.Store({
         }
       },
       content: {
+        beats: [],
+        lyrics: [],
       },
       style: {
         measuresPerLine: 8,
@@ -37,13 +39,15 @@ const store = new Vuex.Store({
     },
     updateChordBoard(state, n) {
       state.keyboard = n;
-      window.console.log('successfully updated state: ', n)
+      window.console.log('successfully updated chordboard state: ', n)
     },
     editChart(state, updates) {
-      window.console.log('store var updates: ', updates);
-      window.console.log('currentChart: ', state.currentChart);
       state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
-      window.console.log('successfully stored state: ', state.currentChart)
+      window.console.log('successfully edited chart state: ', state.currentChart)
+    },
+    loadChart(state, chart) {
+      state.currentChart = chart;
+      window.console.log('successfully loaded chart state: ', chart)
     }
   }
 })

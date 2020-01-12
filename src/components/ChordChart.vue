@@ -4,6 +4,12 @@
     <div v-if="chart.error">
       ERRORRRRR
     </div>
+    <div v-if="chart.error === true">
+      {{$route.params.title}} doesn't exist. 
+      <router-link :to="`/newchart`">
+        Create new chart
+      </router-link>
+    </div>
     <div v-if="chart.details" id="chart" class="chart">
     <nav class="chart__options">
       <span>
@@ -22,6 +28,12 @@
       </span>
       <span>
         Other Options
+      </span>
+      <span>
+        Edit: 
+        <router-link :to="$route.params.title + `/edit`">
+          Edit Chart
+        </router-link>
       </span>
 
     </nav>
@@ -79,8 +91,6 @@ export default {
   props: {
     fonts: Array
   },
-  mounted() {
-  },
   updated() {
     // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
     // let inputs = document.getElementsByTagName('input')
@@ -98,6 +108,7 @@ export default {
     return {
       measures: [],
       chart: {
+        error: false
         // style: {
         //   font: 'Alata',
         //   measuresPerLine: 8,
@@ -139,28 +150,34 @@ export default {
       }
     }
   },
-  beforeCreate() {
+  created() {
     const route = this.$route.params.title;
     db.collection('chordcharts').doc(route).get()
     .then(response => {
       const chart = response.data();
-      if (chart.details.title) {
+      if (!chart) {
+        this.chart.error = true
+      } else {
         this.chart = chart;
         this.populateMeasures();
-      } else {
-        this.chart.error = "Chart doesn't exist"
+        this.$store.commit('loadChart', chart);
       }
-      window.console.log('chart: ', this.chart);
+      window.console.log('chart: ', chart);
     })
     .catch(error => {
       window.console.log('Error: ', error)
     })
   },
+  
   methods: {
     updateFont(font) {
       document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
+      db.collection('chordcharts').doc(this.$route.params.title).set({
+        style: {
+          font: font
+        }
+      }, {merge: true});
       window.console.log("ran updateFont with font ", font);
-      window.console.log(document.getElementById('chart').fontFamily);
     },
     updateMeasuresPerLine(event) {
       let mpl = this.chart.style.measuresPerLine;
@@ -174,15 +191,27 @@ export default {
   // this should be a cloud function
     populateMeasures() {
       const beatsPerMeasure = this.chart.details.timeSig.upper;
+      window.console.log('in PopulateMeasures, bpm is ', beatsPerMeasure)
+      let lyricIndex = 0;
       for (let i=0; i<this.chart.content.beats.length; i++) {
         let measure = {};
         let beats = [];
         let lyrics = [];
         for (let j=0; j<beatsPerMeasure; j++) {
-        beats.push(this.chart.content.beats[i]);
-        if ( j < beatsPerMeasure - 1 ) i++;
+          if (this.chart.content.beats[i]) 
+          {
+          beats.push(this.chart.content.beats[i]);
+          } else {
+          beats.push('')
+          }
+          if ( j < beatsPerMeasure - 1 ) i++;
         }
-        lyrics.push(this.chart.content.lyrics.shift());
+        if (this.chart.content.lyrics[lyricIndex]) {
+          lyrics.push(this.chart.content.lyrics[lyricIndex])
+        } else {
+          lyrics.push([""])
+        }
+        lyricIndex++;
         measure['beats'] = beats;
         measure['lyrics'] = lyrics;
         this.measures.push(measure);
@@ -219,6 +248,7 @@ export default {
 .chart__options {
   height: 3rem;
   font-size: 1rem;
+  background-color: rgb(236, 255, 207);
 }
 .chart__header {
   height: 3rem;
@@ -251,6 +281,9 @@ export default {
 }
 .grid__col-8 {
   grid-template-columns: repeat(8, 1fr);
+}
+.chart__details {
+  font-size: 1rem;
 }
 .chart__measure-beats, .chart__measure-lyrics {
   border-left: 1px solid black;  

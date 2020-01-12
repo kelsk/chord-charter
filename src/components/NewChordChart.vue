@@ -9,22 +9,41 @@
         Lyrics: 
         <textarea v-on:change="addLyrics($event)"></textarea>
       </span>
+
       <span>
         Measures per line:
-        <input type="number" placeholder="8" max="10" min="1" v-on:change="addChartState($event, ['style', 'measuresPerLine']); updateMeasuresPerLine($event)" />
+        <input type="number" 
+        max="10" 
+        min="1" 
+        placeholder="8" 
+        v-bind:value="chart.style.measuresPerLine" 
+        v-on:change="addChartState($event, ['style', 'measuresPerLine']); updateMeasuresPerLine($event)" />
       </span>
+
       <span>
         Chord Font:
-        <select v-on:change="addChartState($event, ['style', 'font']); updateFont($event.target.value)">
-          <option v-bind:key="font.id" v-for="font in fonts" v-bind:value="font">
+        <select 
+        v-on:change="addChartState($event, ['style', 'font']); updateFont($event.target.value)">
+          <option 
+          v-bind:key="font.id" 
+          v-for="font in fonts" 
+          v-bind:value="chart.style.font">
             {{font}}
           </option>
         </select>
       </span>
       <span>
         Public Domain:
-        <input type="radio" name="public-domain" value="true">Yes
-        <input type="radio" name="public-domain" value="false">No
+        <input 
+        type="radio" 
+        name="public-domain" 
+        v-model="publicDomain" 
+        v-bind:value="true">Yes
+        <input 
+        type="radio" 
+        name="public-domain" 
+        v-model="publicDomain" 
+        v-bind:value="false">No
       </span>
       <span>
         Other Options
@@ -34,23 +53,41 @@
     <div  id="chart" class="chart">
     <header class="chart__header">
       <span class="chart__title">
-        <input type="text" placeholder="TITLE" v-on:change="addChartState($event, ['details', 'title'])">
+        <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
       </span>
       <span class="chart__author">
-      <input type="text" placeholder="AUTHOR" v-on:change="addChartState($event, ['details', 'author'])">
+      <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
       </span>
     </header>
 
     <section id="details" class="chart__details">
       <span class="chart__details-tempo">
-        Tempo: <input type="number" v-on:change="addChartState($event, ['details', 'tempo'])">
+        Tempo: 
+        <input type="number" 
+        v-bind:placeholder="chart.details.tempo" 
+        v-on:change="addChartState($event, ['details', 'tempo'])">
       </span>
+
       <span class="chart__details-key">
-        Key: <input type="text" v-on:change="addChartState($event, ['details', 'keySig'])">
+        Key: 
+        <input type="text" 
+        v-bind:placeholder="chart.details.keySig"
+        v-on:change="addChartState($event, ['details', 'keySig'])">
       </span>
       <span class="chart__details-time">
-        Time: <input type="radio" name="timeSig" value="3/4" v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 3/4
-        <input type="radio" name="timeSig" value="4/4" v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 4/4
+        Time: 
+        <input type="radio" 
+        name="timeSig" 
+        v-model="timeSig"
+        v-bind:value="[3, 4]"
+        v-on:click="addTimeSig($event, ['details', 'timeSig'])">
+          3/4
+        <input type="radio" 
+        name="timeSig" 
+        v-model="timeSig"
+        v-bind:value="[4, 4]" 
+        v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          4/4
       </span>
     </section>
 
@@ -71,10 +108,11 @@
       v-for="measure in measures"
       >
         <p class="chart__measure-beats">
+
         <span class="beat" 
           v-bind:key="beat.id"
           v-for="beat in measure">
-          {{beat.chord}}
+          <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
         </span>
         </p>
         <p class="chart__measure-lyrics">
@@ -99,21 +137,48 @@
 import Tone from 'tone'
 import store from '../store.js'
 import { db } from '../main.js'
+import Beat from './Beat.vue'
 
 export default {
   name: 'NewChordChart',
   store,
+  components: {
+    Beat,
+  },
   props: {
     fonts: Array
   },
   data() {
     return {
+      // can't access nested elements with v-model
+      //TODO: fix publicDomain & timeSig
+      publicDomain: false,
+      timeSig: [4, 4],
+      editingBeat: false,
+
+      chart: {
+        style: {
+          font: '',
+        },
+        details: {
+          title: '',
+          author: '',
+      tempo: 128,
+      keySig: 'C',
+      timeSig: {
+        upper: 4,
+        lower: 4
+      },
+        }
+      },
       title: '',
+      author: '',
       rest: '~',
-      measures: [[]],
-      newMeasure: [],
+
       beats: [],
       lyrics: [],
+      measures: [[]],
+      newMeasure: [],
       recording: false,
       charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
@@ -141,8 +206,19 @@ export default {
       }
     });
   },
-  mounted() {
-    document.getElementById('chart').setAttribute('style', `font-family: ${this.$store.state.currentChart.style.font}`)
+  mounted(){
+    if (this.$store.state.currentChart) {
+      let currentChart = this.$store.state.currentChart;
+      this.title = currentChart.details.title;
+      this.beats = currentChart.content.beats;
+      this.lyrics = currentChart.content.lyrics;
+      this.chart = currentChart;
+      if (this.beats)
+      {
+      this.beats.forEach(beat => this.addBeat(beat));
+      }
+      window.console.log('NewChordChart: mounted chart: ', currentChart);
+    }
   },
   methods: {
     addBeat(beat) {
@@ -162,11 +238,12 @@ export default {
     addLyrics(event) {
       let lines = event.target.value.split('\n');
       this.lyrics = lines;
+      this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
       window.console.log(lines)
     },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
-      const bottom = parseInt(event.target.value[2]);
+      const bottom = parseInt(event.target.value[1]);
       window.console.log(bottom);
       const timeSig = { target: { value: {upper: top, lower: bottom} } }; 
       this.addChartState(timeSig, fields)
@@ -182,6 +259,21 @@ export default {
         chart
       );
       window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
+    },
+    editBeat(chord, id) {
+      window.console.log('editing beat with id ', id);
+      this.measures.forEach(measure => {
+        measure.forEach(beat => {
+          window.console.log('beat id: ', beat.id)
+          if (beat.id === id) {
+            beat.chord = chord
+            window.console.log('editing measure ', measure)
+            window.console.log('editing beat ', beat)
+          }
+        })
+      })
+      // this.beats.splice(index, 1);
+      // this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
     },
     playChord(e) {
       window.console.log('playChord: this.beats = ', this.beats);
@@ -209,14 +301,14 @@ export default {
     },
     removeBeat(index) {
       window.console.log('removing beat at index ', index);
-    this.measures.forEach(measure => {
-      measure.forEach(beat => {
-        if (beat.id === index) {
-          measure.splice(measure.indexOf(beat), 1)
-        }
+      this.measures.forEach(measure => {
+        measure.forEach(beat => {
+          if (beat.id === index) {
+            measure.splice(measure.indexOf(beat), 1)
+          }
+        })
       })
-    })
-    this.beats.splice(index, 1);
+      this.beats.splice(index, 1);
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
       // this.measures[-1].splice(-1, 1)
     },

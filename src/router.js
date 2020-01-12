@@ -18,14 +18,6 @@ const routes = [
     component: HelloWorld
   },
   {
-    path: '/newchart',
-    name: 'newchart',
-    component: NewChordChart,
-    props: {
-      fonts
-    }
-  },
-  {
     path: '/charts',
     name: 'charts',
     component: Charts,
@@ -36,15 +28,31 @@ const routes = [
         component: ChartLibrary
       },
       {
-        path: ':title',
-        name: ':title',
-        component: ChordChart,
+        path: 'new',
+        name: 'new',
+        component: NewChordChart,
         props: {
           fonts
         }
-      }
+      },
     ]
   },
+  {
+    path: '/:title',
+    name: ':title',
+    component: ChordChart,
+    props: {
+      fonts
+    },
+    children: [
+    ]
+  },
+  {
+    path: '/:title/edit',
+    name: 'edit',
+    component: NewChordChart
+  },
+
   {
     path: '/chordboards',
     name: 'chordboards',

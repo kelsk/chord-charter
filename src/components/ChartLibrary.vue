@@ -2,6 +2,11 @@
   <div>
     Chord Chart Library
   <div>
+    <p>
+      <router-link :to="`charts/new`">
+      Add New Chart
+      </router-link>
+    </p>
     <p v-bind:key="chart.id" v-for="chart in chartTitles">
       <router-link :to="chart.id">
       {{chart.title}}
@@ -23,7 +28,7 @@ export default {
       chartTitles: []
     }
   },
-  beforeMount() {
+  created() {
     db.collection('chordcharts').get()
     .then( charts => {
       charts.docs.forEach(doc => {
