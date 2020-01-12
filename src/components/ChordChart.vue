@@ -222,14 +222,15 @@ export default {
     formatMeasures() {
       this.measures.forEach(measure => {
         let currentBeat = measure.beats[0];
-        window.console.log(currentBeat);
         for (let i=1; i < this.chart.details.timeSig.upper; i++) {
           if (currentBeat === '') {
             measure.beats[i-1] = '/';
             currentBeat = measure.beats[i];
-            window.console.log('Entered slash loop');
+            window.console.log('Successfully rendered empty beat');
           } else if (currentBeat === measure.beats[i]) {
             measure.beats[i] = ''
+            window.console.log('Successfully rendered duplicate beat');
+
           } else {
             currentBeat = measure.beats[i]
           }

@@ -225,7 +225,6 @@ export default {
       let i = this.measures.length - 1;
       this.beats.push(beat);
       this.measures[i].push({chord: beat, id: this.beats.length - 1} );
-      window.console.log("measure beat id: ", this.measures[i][0].id)
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.addBeatsToMeasures()

@@ -43,7 +43,6 @@ const store = new Vuex.Store({
     },
     editChart(state, updates) {
       state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
-      window.console.log('successfully edited chart state: ', state.currentChart)
     },
     loadChart(state, chart) {
       state.currentChart = chart;
