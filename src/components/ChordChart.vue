@@ -34,6 +34,10 @@
         <router-link :to="$route.params.title + `/edit`">
           Edit Chart
         </router-link>
+        Delete:
+        <button v-on:click="deleteChart">
+        Delete Chart
+        </button>
       </span>
 
     </nav>
@@ -107,6 +111,7 @@ export default {
   data() {
     return {
       measures: [],
+      chartId: {},
       chart: {
         error: false
         // style: {
@@ -170,6 +175,13 @@ export default {
   },
   
   methods: {
+    deleteChart() {
+      const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$route.params.title}?`);
+      if (deleteDoc === true) {
+      db.collection('chordcharts').doc(this.$route.params.title).delete();
+      this.$router.push('charts');
+      }
+    },
     updateFont(font) {
       document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
       db.collection('chordcharts').doc(this.$route.params.title).set({
