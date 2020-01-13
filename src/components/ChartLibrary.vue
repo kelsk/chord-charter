@@ -2,6 +2,11 @@
   <div>
     Chord Chart Library
   <div>
+    <p>
+      <router-link :to="`charts/new`">
+      Add New Chart
+      </router-link>
+    </p>
     <p v-bind:key="chart.id" v-for="chart in chartTitles">
       <router-link :to="chart.id">
       {{chart.title}}
@@ -23,7 +28,8 @@ export default {
       chartTitles: []
     }
   },
-  beforeMount() {
+  created() {
+    this.clearState();
     db.collection('chordcharts').get()
     .then( charts => {
       charts.docs.forEach(doc => {
@@ -39,6 +45,28 @@ export default {
     window.console.log("chartTitles = ", this.chartTitles)
     }
   )
+  },
+  methods: {
+    clearState() {
+      const currentChart = {
+        details: {
+        title: 'untitled',
+        timeSig: {
+          upper: 4,
+          lower: 4
+        }
+      },
+      content: {
+        beats: [],
+        lyrics: [],
+      },
+      style: {
+        measuresPerLine: 8,
+        font: "'Alata'"
+      },
+      };
+      this.$store.commit('loadChart', currentChart)
+    }
   }
 }
 </script>

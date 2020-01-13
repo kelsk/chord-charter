@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+  <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
     <p>
       <router-link to="/charts">Charts</router-link>
       <router-link to="/chordboards">Chordboards</router-link>
@@ -18,7 +19,7 @@ export default {
   name: 'app',
   store,
   components: {
-  },
+  }
 }
 </script>
 

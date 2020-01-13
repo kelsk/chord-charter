@@ -9,6 +9,8 @@ import NewChordChart from './components/NewChordChart.vue';
 
 Vue.use(VueRouter)
 
+const fonts = ['Acme', 'Alata', 'Asap Condensed', 'Boogaloo', 'Calistoga', 'Caveat Brush', 'Fredoka One', 'Tinos'];
+
 const routes = [
   {
     path: '/hello',
@@ -16,9 +18,9 @@ const routes = [
     component: HelloWorld
   },
   {
-    path: '/newchart',
-    name: 'newchart',
-    component: NewChordChart
+    path: '/chordboards',
+    name: 'chordboards',
+    component: ChordBoards,
   },
   {
     path: '/charts',
@@ -31,17 +33,32 @@ const routes = [
         component: ChartLibrary
       },
       {
-        path: ':title',
-        name: ':title',
-        component: ChordChart,
-      }
+        path: 'new',
+        name: 'new',
+        component: NewChordChart,
+        props: {
+          fonts
+        }
+      },
     ]
   },
   {
-    path: '/chordboards',
-    name: 'chordboards',
-    component: ChordBoards,
-  }
+    path: '/:title',
+    name: ':title',
+    component: ChordChart,
+    props: {
+      fonts
+    },
+    children: [
+    ]
+  },
+  {
+    path: '/:title/edit',
+    name: 'edit',
+    component: NewChordChart
+  },
+
+
 ];
 const router = new VueRouter({
   routes
