@@ -27,6 +27,7 @@ export default {
     },
     saveBeat(chord) {
       this.edit(chord, this.beatId)
+      window.console.log('saveBeat: saved beat ', chord);
     }
   }
 }
