@@ -215,24 +215,24 @@ export default {
       this.chart = currentChart;
       if (this.beats)
       {
-      this.beats.forEach(beat => this.addBeat(beat));
+      this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
       }
       window.console.log('NewChordChart: mounted chart: ', currentChart);
     }
   },
   methods: {
     addBeat(beat) {
-      let i = this.measures.length - 1;
+      window.console.log('addBeat');
       this.beats.push(beat);
-      this.measures[i].push({chord: beat, id: this.beats.length - 1} );
-      this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
-      if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
-        this.addBeatsToMeasures()
-      }
-      // this.populateMeasures();
+      let i = this.beats.length - 1;
+      this.addBeatsToMeasures(beat, i)
     },
-    addBeatsToMeasures() {
-      this.measures.push([]);
+    addBeatsToMeasures(beat, id) {
+      let i = this.measures.length - 1;
+      this.measures[i].push({chord: beat, id: id} );
+      if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
+        this.measures.push([]);
+      }
     },
     addLyrics(event) {
       let lines = event.target.value.split('\n');
@@ -271,14 +271,15 @@ export default {
           }
         })
       })
-      // this.beats.splice(index, 1);
-      // this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
+      this.beats[id] = chord;
+      this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats}, {merge: false});
+      window.console.log('new beats: ', this.$store.state.currentChart.content.beats[0]);
     },
     playChord(e) {
       window.console.log('playChord: this.beats = ', this.beats);
       if (e.code === "Space") {
         window.console.log('its a space!!!!');
-        this.addBeat(this.rest);
+        this.recordBeat(this.rest);
         return
       }
       if (e.code === "Backspace") {
@@ -294,9 +295,13 @@ export default {
           window.console.log("successfully played chord ", char.chord);
           this.chordProgression.push(char.chord);
           window.console.log(this.chordProgression);
-        this.addBeat(char.chord)
+        this.recordBeat(char.chord)
         }
       });
+    },
+    recordBeat(beat) {
+      this.addBeat(beat);
+      this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
     },
     removeBeat(index) {
       window.console.log('removing beat at index ', index);

@@ -42,6 +42,7 @@ const store = new Vuex.Store({
       window.console.log('successfully updated chordboard state: ', n)
     },
     editChart(state, updates) {
+      window.console.log('update value: ', updates.value);
       state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
     },
     loadChart(state, chart) {
