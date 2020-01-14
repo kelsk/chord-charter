@@ -12,6 +12,7 @@
 </template>
 <script>
 import { db } from '../main.js'
+import Tone from 'tone'
 
 export default {
   name: 'ChordLibrary',
@@ -79,7 +80,6 @@ export default {
 
       if (this.chordData.alt.includes(quality)) {
         altPrefix = quality;
-        quality = '';
         window.console.log('altPrefix = ', altPrefix);
       } else if (this.chordData.quality.includes(quality)) {
         window.console.log('quality = ', quality);
@@ -151,16 +151,20 @@ export default {
     else if (quality === 'aug' || quality === '+') {
       fifth += 1
     }
-    else if (quality === 'sus') {
-      third += 2
+
+    // remove third in suspended
+    if (quality.includes('sus')) {
+      chord.push(notes[rootIndex] + '4', notes[getIndex(9, rootIndex)] + '4', notes[fifth] + '4')
+    } else {
+    // add notes to chord
+    chord.push(notes[rootIndex] + '4', notes[third] + '4', notes[fifth] + '4');
     }
 
-    // add notes to chord
-    chord.push(rootIndex, third, fifth);
 
     // altered notes
     let altIndex = 0;
-    altNotes.forEach(note => {
+    if (altNotes)
+{    altNotes.forEach(note => {
       let prefix;
       if (note.length > 1) {
       prefix = note[0];
@@ -171,18 +175,28 @@ export default {
       window.console.log('prefix, num = ', prefix, num);
       if (rootIndex >= 13) {
         altIndex = getIndex(num * 3 - 2, rootIndex);
-      } else{
+      } else {
         altIndex = getIndex(num * 3 - 3, rootIndex);
       }
+      chord.push(notes[altIndex] + '4')
       window.console.log('altIndex = ', altIndex)
     })
-    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
-  }
-},
-buildTone(chord) {
+}    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
+    this.buildTone(chord);
+  },
+  
+  buildTone(chord) {
   window.console.log('buildTone chord = ', chord);
+  this.playChord(chord)
 
-}
+},
+    playChord(chord) {
+          const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
+          synth.triggerAttackRelease(chord, "8n");  
+          window.console.log("successfully played chord ", chord);
+    },
+
+},
 
 
   }
