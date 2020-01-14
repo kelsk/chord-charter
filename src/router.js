@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import ChordBoards from './views/ChordBoardView.vue';
+import ChordLibrary from './components/ChordLibrary.vue';
 import HelloWorld from './components/HelloWorld.vue';
 import Charts from './views/ChartView.vue';
 import ChartLibrary from './components/ChartLibrary.vue';
@@ -42,6 +43,13 @@ const routes = [
       },
     ]
   },
+  {
+    path: '/chords',
+    name: 'chords',
+    component: ChordLibrary
+  },
+
+  // :TITLE
   {
     path: '/:title',
     name: ':title',
