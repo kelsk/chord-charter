@@ -1,7 +1,7 @@
 <template>
   <div>
     Chord Chart Library
-  <div>
+  <div class="chartlibrary">
     <p>
       <router-link :to="`charts/new`">
       Add New Chart

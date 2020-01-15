@@ -1,0 +1,155 @@
+:root {
+  --dark-gray: #2c3e50;
+  --light-gray: #e7e7eb;
+  
+}
+
+.hidden {
+  display: none;
+}
+.visible {
+  display: inline-block;
+}
+body {
+  background-color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--dark-gray, black);
+  font-weight: 100;
+  -webkit-font-smoothing: antialiased;
+}
+
+body a {
+  text-decoration: none;
+}
+body a:hover {
+  color: blue
+}
+
+.app__nav {
+  background-color: #adac12;
+}
+.app__nav a {
+  padding: 10px;
+  display: inline-block;
+  color: white;
+}
+.app__nav a:hover {
+background-color: gray;
+color: white
+}
+
+.chartlibrary p {
+  padding: 10px;
+  margin: 0;
+  background-color: rgb(255, 255, 255);
+  border-bottom: 1px solid #f0f0f0;
+  border-top: 1px solid var(--light-gray, gray);
+}
+.chartlibrary p:hover {
+  background-color: #adac12;
+}
+.chartlibrary p:hover a {
+  color: white;
+}
+
+
+
+
+
+.chordboard__nav li {
+  display: inline-block;
+}
+.chordboard__nav li button:hover {
+background-color: #adac12}
+
+
+
+
+
+
+
+
+/* CHATT */
+.chart {
+  text-align: center;
+  font-size: 2rem;
+}
+.chart__options {
+  height: 2.5rem;
+  font-size: 0.8rem;
+  background-color: rgb(232, 233, 229);
+}
+.chart__options span {
+  display: inline-block;
+  margin: 5px;
+  vertical-align: bottom;
+}
+.chart__options-lyrics-text {
+  position: absolute;
+  left: 0;
+  margin-top: 25px;
+  height: 300px;
+  width: 200px;
+}
+
+.chart__header {
+  height: 3rem;
+}
+.chart__body {
+  display: grid;
+  grid-row-gap: 1rem;
+  font-size: 2rem;
+}
+.grid__col-1 {
+  grid-template-columns: 1fr;
+}
+.grid__col-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid__col-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid__col-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.grid__col-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+.grid__col-6 {
+  grid-template-columns: repeat(6, 1fr);
+}
+.grid__col-7 {
+  grid-template-columns: repeat(7, 1fr);
+}
+.grid__col-8 {
+  grid-template-columns: repeat(8, 1fr);
+}
+.chart__details {
+  font-size: 1rem;
+}
+.chart__measure-beats, .chart__measure-lyrics {
+  border-left: 1px solid black;  
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+}
+.chart__measure-beats {
+  padding: 0px 20px 0px 20px;
+}
+.chart__measure-lyrics {
+  padding: 0px 20px 0px 20px;
+}
+.lyric {
+  font-size: 1rem;
+  border: none;
+  padding: 0;
+  width: 100%;
+}
+.lyric::placeholder {
+  color: black;
+  text-align: center;
+}
+.lyric:focus::placeholder {
+  color: grey;
+}

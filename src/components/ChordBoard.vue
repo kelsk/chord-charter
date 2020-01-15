@@ -2,7 +2,7 @@
   <div id="title">
     Current ChordBoard: {{boardname}}
   <div>
-  <ul>
+  <ul class='chordboard__nav'>
     <li v-bind:key="board.id" v-for="board in chordboards">
       <button v-on:click="toggleQwertyKeyboard(board.key)">
         {{board.key}}
@@ -167,6 +167,7 @@ export default {
     // },
     toggleQwertyKeyboard(boardname) {
       this.loadChordBoard(boardname);
+      this.stopRecording();
     },
     createNewChordBoard() {
       window.alert('can\'t do that yet :/ ');

@@ -1,13 +1,14 @@
 <template>
   <div>
   <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
-      <span>
+      <title>
         {{$store.state.currentChart.details.title}}
-      </span>
+      </title>
     <nav class="chart__options">
-      <span>
+      <span class="chart__options-lyrics">
         Lyrics: 
-        <textarea v-on:change="addLyrics($event)"></textarea>
+        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">INPUT LYRICS</button>
+        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" v-on:change="addLyrics($event)"></textarea>
       </span>
 
       <span>
@@ -152,6 +153,7 @@ export default {
     return {
       // can't access nested elements with v-model
       //TODO: fix publicDomain & timeSig
+      lyricInputVisible: false,
       publicDomain: false,
       timeSig: [4, 4],
       editingBeat: false,
@@ -180,6 +182,9 @@ export default {
       measures: [[]],
       newMeasure: [],
       recording: false,
+
+      // TODO: replace charToNote with chords assessed from chord library.
+      // also fix chord library.
       charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
         { w: ['C#4'], chord: 'C#' },
@@ -334,6 +339,9 @@ export default {
       chart.classList.remove('grid__col-' + mpl.toString());
       chart.classList.add('grid__col-' + etv.toString());
       this.chart.style.measuresPerLine = etv;
+    },
+    viewLyricsInput() {
+      this.lyricInputVisible = !this.lyricInputVisible;
     },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
