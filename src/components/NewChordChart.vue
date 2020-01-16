@@ -1,14 +1,23 @@
 <template>
-  <div>
-  <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
-      <title>
-        {{$store.state.currentChart.details.title}}
-      </title>
+  <div class="chart__new">
+    <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
+
+    <div class="chart__options-wrapper">
     <nav class="chart__options">
+      <router-link :to="`/${$route.params.title}`" class="chart__doc-id">
+        {{$route.params.title}}
+      </router-link>
+      <span class="chart__save">
+        <button v-on:click="saveChart">
+          Save Chart
+        </button>
+      </span>
       <span class="chart__options-lyrics">
-        Lyrics: 
-        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">INPUT LYRICS</button>
-        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" v-on:change="addLyrics($event)"></textarea>
+        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">Add Lyrics</button>
+        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" 
+        v-model="rawLyrics"
+        v-on:change="addLyrics($event)">
+        </textarea>
       </span>
 
       <span>
@@ -22,7 +31,7 @@
       </span>
 
       <span>
-        Chord Font:
+        Font:
         <select 
         v-on:change="addChartState($event, ['style', 'font']); updateFont($event.target.value)">
           <option 
@@ -46,90 +55,125 @@
         v-model="publicDomain" 
         v-bind:value="false">No
       </span>
-      <span>
-        Other Options
-      </span>
 
     </nav>
-    <div  id="chart" class="chart">
-    <header class="chart__header">
-      <span class="chart__title">
-        <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
-      </span>
-      <span class="chart__author">
-      <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
-      </span>
-    </header>
-
-    <section id="details" class="chart__details">
-      <span class="chart__details-tempo">
-        Tempo: 
-        <input type="number" 
-        v-bind:placeholder="chart.details.tempo" 
-        v-on:change="addChartState($event, ['details', 'tempo'])">
-      </span>
-
-      <span class="chart__details-key">
-        Key: 
-        <input type="text" 
-        v-bind:placeholder="chart.details.keySig"
-        v-on:change="addChartState($event, ['details', 'keySig'])">
-      </span>
-      <span class="chart__details-time">
-        Time: 
-        <input type="radio" 
-        name="timeSig" 
-        v-model="timeSig"
-        v-bind:value="[3, 4]"
-        v-on:click="addTimeSig($event, ['details', 'timeSig'])">
-          3/4
-        <input type="radio" 
-        name="timeSig" 
-        v-model="timeSig"
-        v-bind:value="[4, 4]" 
-        v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
-          4/4
-      </span>
-    </section>
-
-    <nav>
-      <button class="btn btn__start"
-      v-on:click="startRecording">
-        START RECORDING
-      </button>
-      <button class="btn btn__stop"
-      v-on:click="stopRecording">
-        STOP RECORDING
-      </button>
-    </nav>
-
-    <section id="chart-body" class="chart__body grid__col-4">
-      <div
-      v-bind:key="measure.id"
-      v-for="measure in measures"
-      >
-        <p class="chart__measure-beats">
-
-        <span class="beat" 
-          v-bind:key="beat.id"
-          v-for="beat in measure">
-          <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
-        </span>
-        </p>
-        <p class="chart__measure-lyrics">
-          <span v-if="lyrics">
-            {{lyrics[measures.indexOf(measure)]}}
-          </span>
-          <input v-else class="lyric"
-          type="text" placeholder="lyrics">
-        </p>
-      </div>
-    </section>
     </div>
+    
+    <div id="chart" class="chart">
+      <header class="chart__header">
+        <span class="chart__title">
+          <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
+        </span>
+        <span class="chart__author">
+        <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
+        </span>
+      </header>
 
-<button v-on:click="addNewChart">
-  ADD NEW CHART
-</button>
+      <section id="details" class="chart__details">
+        <span class="chart__details-tempo">
+          Tempo: 
+          <input type="number" 
+          v-bind:placeholder="chart.details.tempo" 
+          v-on:change="addChartState($event, ['details', 'tempo'])">
+        </span>
+
+        <span class="chart__details-key">
+          Key: 
+          <input type="text" 
+          v-bind:placeholder="chart.details.keySig"
+          v-on:change="addChartState($event, ['details', 'keySig'])">
+        </span>
+        <span class="chart__details-time">
+          Time: 
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[2, 4]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            2/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[3, 4]"
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])">
+          <span>
+            3/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[4, 4]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            4/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[6, 8]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            6/8
+          </span>
+</label>
+        </span>
+      </section>
+
+      <nav>
+        <button class="btn btn__start"
+        v-on:click="startRecording">
+          START RECORDING
+        </button>
+        <button class="btn btn__stop"
+        v-on:click="stopRecording">
+          STOP RECORDING
+        </button>
+      </nav>
+
+      <section id="chart-body" class="chart__body grid__col-4">
+        <div class="chart__measure"
+        v-bind:id="`measure-${measures.indexOf(measure)}`"
+        v-bind:key="measure.id"
+        v-for="measure in measures"
+        >
+        <p class="chart__measure-repeat" v-on:click="addRepeat(`measure-${measures.indexOf(measure)}`, 'start')">
+          start repeat
+        </p>
+        <p class="chart__measure-repeat" v-on:click="addRepeat(`measure-${measures.indexOf(measure)}`, 'end')">
+          end repeat
+        </p>
+
+          <p class="chart__measure-beats">
+
+          <span class="beat" 
+            v-bind:key="beat.id"
+            v-for="beat in measure">
+            <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
+          </span>
+          </p>
+          <p class="chart__measure-lyrics">
+            <span v-if="lyrics">
+              {{lyrics[measures.indexOf(measure)]}}
+            </span>
+            <input v-else class="lyric"
+            type="text" placeholder="lyrics">
+          </p>
+        </div>
+      </section>
+      </div>
+
+  <button v-on:click="addNewChart">
+    ADD NEW CHART
+  </button>
   </div>
 
 </template>
@@ -157,7 +201,8 @@ export default {
       publicDomain: false,
       timeSig: [4, 4],
       editingBeat: false,
-
+      rawLyrics: '',
+      measureStyle: {},
       chart: {
         style: {
           font: '',
@@ -240,10 +285,24 @@ export default {
       }
     },
     addLyrics(event) {
+      let rawLyrics = event.target.value;
+      this.rawLyrics = rawLyrics;
       let lines = event.target.value.split('\n');
       this.lyrics = lines;
       this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
       window.console.log(lines)
+    },
+    addRepeat(index, position) {
+      let measure = document.getElementById(index);
+    if (position === 'start') {
+      this.measureStyle[index] += 'border-left: 3px solid black;';
+      measure.setAttribute('style', this.measureStyle[index]);
+    } else if (position === 'end') {
+      this.measureStyle[index] += 'border-right: 3px solid black;';
+      measure.setAttribute('style', this.measureStyle[index]);
+    }
+      window.console.log(index);
+      window.console.log(position);
     },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
@@ -320,6 +379,20 @@ export default {
       this.beats.splice(index, 1);
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
       // this.measures[-1].splice(-1, 1)
+    },
+    saveChart() {
+      const newTitle = this.$store.state.currentChart.details.title;
+      if (this.title != newTitle) {
+        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nOverwrite existing chart ${newTitle}?`);
+        if (!titleConfirmation) return;
+      }
+      window.console.log('successfully saved chart');
+      const chart = this.$store.state.currentChart;
+      window.console.log(chart);
+      db.collection('chordcharts').doc(chart.details.title).set(
+        {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
+      );
+      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
     },
     startRecording() {
       this.recording = true;

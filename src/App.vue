@@ -6,9 +6,7 @@
       <router-link to="/chordboards">Chordboards</router-link>
       <router-link to="/hello">Vue Links</router-link>
     </nav>
-    <p>
       <router-view></router-view>
-    </p>
   </div>
 </template>
 

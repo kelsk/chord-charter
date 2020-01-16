@@ -1,20 +1,28 @@
 <template>
-  <div>
+  <div class="outer__chart">
     <!-- <link href="https://fonts.googleapis.com/css?family=Hammersmith+One|Lalezar|Nanum+Pen+Script|Oxygen|Patrick+Hand|Paytone+One|Rajdhani|Titillium+Web|Volkhov|Yanone+Kaffeesatz&display=swap" rel="stylesheet"> -->
-    <div v-if="chart.error">
-      ERRORRRRR
-    </div>
+
     <div v-if="chart.error === true">
-      {{$route.params.title}} doesn't exist. 
       <router-link :to="`/newchart`">
         Create new chart
       </router-link>
     </div>
-    <div v-if="chart.details" id="chart" class="chart">
-    <nav class="chart__options">
-      <span>
+
+      <nav class="chart__options">
+      <span class="chart__doc-id">
         {{$route.params.title}}
       </span>
+      <span>
+        <router-link :to="$route.params.title + `/edit`">
+        <button>
+          Edit Chart
+        </button>
+        </router-link>
+        <button v-on:click="deleteChart">
+        Delete Chart
+        </button>
+      </span>
+
       <span>
         Measures per line:
         <input type="number" placeholder="8" max="10" min="1" v-on:change="updateMeasuresPerLine($event)" />
@@ -26,21 +34,10 @@
           </option>
         </select>
       </span>
-      <span>
-        Other Options
-      </span>
-      <span>
-        Edit: 
-        <router-link :to="$route.params.title + `/edit`">
-          Edit Chart
-        </router-link>
-        Delete:
-        <button v-on:click="deleteChart">
-        Delete Chart
-        </button>
-      </span>
-
     </nav>
+
+
+    <div v-if="chart.details" id="chart" class="chart" v-bind:style="`font-family: ${font}`">
     <header class="chart__header">
       <span class="chart__title">
         {{chart.details.title}}
@@ -111,6 +108,7 @@ export default {
   data() {
     return {
       measures: [],
+      font: 'Alata',
       chartId: {},
       chart: {
         error: false
@@ -164,6 +162,7 @@ export default {
         this.chart.error = true
       } else {
         this.chart = chart;
+        this.font = chart.style.font;
         this.populateMeasures();
         this.$store.commit('loadChart', chart);
       }
@@ -173,7 +172,6 @@ export default {
       window.console.log('Error: ', error)
     })
   },
-  
   methods: {
     deleteChart() {
       const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$route.params.title}?`);
@@ -183,7 +181,6 @@ export default {
       }
     },
     updateFont(font) {
-      document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
       db.collection('chordcharts').doc(this.$route.params.title).set({
         style: {
           font: font

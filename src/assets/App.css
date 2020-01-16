@@ -38,6 +38,18 @@ background-color: gray;
 color: white
 }
 
+.chart__container {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  width: 100%;
+}
+
+.chartlibrary {
+  overflow: scroll;
+}
+.chartlibrary::-webkit-scrollbar {
+  display: none;
+}
 .chartlibrary p {
   padding: 10px;
   margin: 0;
@@ -70,26 +82,92 @@ background-color: #adac12}
 
 
 /* CHATT */
+
+.outer__chart {
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+.outer__chart::-webkit-scrollbar {
+  display: none;
+}
+.chart__new {
+  width: 100%;
+  overflow: scroll;
+}
+.chart__new::-webkit-scrollbar {
+  display: none;
+}
+
+.chart__title input, .chart__author input {
+  height: 2rem;
+}
+
+.chart__details-tempo, .chart__details-key, .chart__details-time {
+  font-size: .8rem;
+}
+.chart__details-tempo input, .chart__details-key input {
+  width: 1.8rem;
+}
+
+.chart__details-time input[type="radio"] {
+  width: 0;
+  margin: 0;
+}
+.chart__details-time span {
+  background-color: rgb(160, 159, 159);
+  border-radius: 2rem;
+  text-align: center;
+  padding: 2px 4px 2px 4px;
+  color: white;
+}
+.chart__details-time input[type="radio"]:checked + span {
+  background-color: #adac12;
+}
+
+
+
+.chart__doc-id {
+  color: white;
+  font-size: 1.2rem;
+}
 .chart {
   text-align: center;
   font-size: 2rem;
+  margin: 2rem;
+}
+.chart__options-wrapper {
+  width: 100%;
 }
 .chart__options {
+  border-top: 2px solid rgb(160, 160, 139);
   height: 2.5rem;
   font-size: 0.8rem;
-  background-color: rgb(232, 233, 229);
+  color: white;
+  background-color: rgb(160, 159, 159);
+  white-space: nowrap;
+  overflow-x: scroll;
 }
+.chart__options::-webkit-scrollbar, .chart__options::-webkit-scrollbar, .chart__options::-webkit-scrollbar-track {
+  width: 1px;
+  height: 1px;
+  color: rgb(232, 233, 229)
+}
+.chart__options::-webkit-scrollbar-thumb {
+  color: black;
+}
+
 .chart__options span {
   display: inline-block;
   margin: 5px;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 .chart__options-lyrics-text {
   position: absolute;
-  left: 0;
+  left: 12rem;
   margin-top: 25px;
-  height: 300px;
+  height: 200px;
   width: 200px;
+  white-space: pre-line;
 }
 
 .chart__header {
@@ -127,6 +205,18 @@ background-color: #adac12}
 .chart__details {
   font-size: 1rem;
 }
+
+
+.chart__measure-repeat {
+  display: inline-block;
+  font-size: .8rem;
+  margin: 0;
+  text-align: left;
+  visibility: hidden;
+}
+.chart__measure:hover .chart__measure-repeat {
+  visibility: visible;
+}
 .chart__measure-beats, .chart__measure-lyrics {
   border-left: 1px solid black;  
   text-align: center;
@@ -140,6 +230,9 @@ background-color: #adac12}
 .chart__measure-lyrics {
   padding: 0px 20px 0px 20px;
 }
+
+
+
 .lyric {
   font-size: 1rem;
   border: none;

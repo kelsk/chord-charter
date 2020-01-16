@@ -4,7 +4,7 @@ import ChordBoards from './views/ChordBoardView.vue';
 import ChordLibrary from './components/ChordLibrary.vue';
 import HelloWorld from './components/HelloWorld.vue';
 import Charts from './views/ChartView.vue';
-import ChartLibrary from './components/ChartLibrary.vue';
+// import ChartLibrary from './components/ChartLibrary.vue';
 import ChordChart from './components/ChordChart.vue';
 import NewChordChart from './components/NewChordChart.vue';
 
@@ -28,11 +28,11 @@ const routes = [
     name: 'charts',
     component: Charts,
     children: [
-      {
-        path: '/',
-        name: 'chartlibrary',
-        component: ChartLibrary
-      },
+      // {
+      //   path: '/',
+      //   name: 'chartlibrary',
+      //   component: ChartLibrary
+      // },
       {
         path: 'new',
         name: 'new',
@@ -41,15 +41,7 @@ const routes = [
           fonts
         }
       },
-    ]
-  },
-  {
-    path: '/chords',
-    name: 'chords',
-    component: ChordLibrary
-  },
-
-  // :TITLE
+        // :TITLE
   {
     path: '/:title',
     name: ':title',
@@ -59,11 +51,21 @@ const routes = [
     },
     children: [
     ]
+      },
+      {
+        path: '/:title/edit',
+        name: 'edit',
+        component: NewChordChart
+      },
+    
+    
+
+    ]
   },
   {
-    path: '/:title/edit',
-    name: 'edit',
-    component: NewChordChart
+    path: '/chords',
+    name: 'chords',
+    component: ChordLibrary
   },
 
 

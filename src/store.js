@@ -6,10 +6,12 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     keyboard: {},
+    chartTitles: [],
     currentChart: {
       // set with defaults
       details: {
         title: 'untitled',
+        author: 'author',
         timeSig: {
           upper: 4,
           lower: 4
@@ -29,6 +31,10 @@ const store = new Vuex.Store({
     message: 'store state'
   },
   mutations: {
+    addChartTitles(state, titles) {
+      state.chartTitles = titles;
+      window.console.log('successfully stored chart titles: ', titles)
+    },
     toggle(state, n) {
       state.currentChordBoard = n
       window.console.log('successfully stored state: ', n)
