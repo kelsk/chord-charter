@@ -25,11 +25,11 @@
 
       <span>
         Measures per line:
-        <input type="number" placeholder="8" max="10" min="1" v-on:change="updateMeasuresPerLine($event)" />
+        <input type="number" v-bind:placeholder="mpl" max="12" min="1" v-on:change="updateMeasuresPerLine($event)" />
       </span>
       <span>
         Chord Font:
-        <select v-model="chart.style.font" @change="updateFont(chart.style.font)">
+        <select v-model="chart.style.font" v-on:change="updateFont(chart.style.font)">
           <option v-bind:key="font.id" v-for="font in fonts" v-bind:value="font">{{font}}
           </option>
         </select>
@@ -60,7 +60,7 @@
       </span>
     </section>
 
-    <section id="chart-body" class="chart__body grid__col-4">
+    <section id="chart-body" v-bind:class="`chart__body grid__col-${mpl}`">
       <div
       v-bind:key="measure.id"
       v-for="measure in measures">
@@ -107,49 +107,12 @@ export default {
   },
   data() {
     return {
+      mpl: 4,
       measures: [],
       font: 'Alata',
       chartId: {},
       chart: {
         error: false
-        // style: {
-        //   font: 'Alata',
-        //   measuresPerLine: 8,
-        // },
-        // details: {
-        //   title: "Happy Birthday",
-        //   author: 'Kelsey',
-        //   tempo: 108,
-        //   keySig: 'C',
-        //   timeSig: {
-        //     upper: 3,
-        //     lower: 4
-        //   }
-        // },
-        // content: {
-        // beats: [
-        //   '', '', 'G', 
-        //   'C', 'C', 'C',
-        //   'G', 'G', 'G', 
-        //   'G', 'G', 'G', 
-        //   'C', 'C', 'C', 
-        //   'C7', 'C7', 'C7', 
-        //   'F', 'F', 'F#dim7',
-        //   'C/G', 'C/G', 'G7', 
-        //   'C', 'C', 'C'
-        // ],
-        // lyrics: [
-        //   'happy',
-        //   'birth day to',
-        //   'you, happy',
-        //   'birth day to',
-        //   'you, happy',
-        //   'birth day dear',
-        //   'SOMEONE, happy',
-        //   'birth day to',
-        //   'you'
-        // ]
-        // }
       }
     }
   },
@@ -163,6 +126,7 @@ export default {
       } else {
         this.chart = chart;
         this.font = chart.style.font;
+        this.mpl = chart.style.measuresPerLine;
         this.populateMeasures();
         this.$store.commit('loadChart', chart);
       }
@@ -176,23 +140,26 @@ export default {
     deleteChart() {
       const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$route.params.title}?`);
       if (deleteDoc === true) {
+      this.$store.commit('removeTitle', this.$route.params.title);
       db.collection('chordcharts').doc(this.$route.params.title).delete();
       this.$router.push('charts');
       }
     },
-    updateFont(font) {
+    updateFont(newFont) {
       db.collection('chordcharts').doc(this.$route.params.title).set({
         style: {
-          font: font
+          font: newFont
         }
       }, {merge: true});
-      window.console.log("ran updateFont with font ", font);
+      window.console.log("ran updateFont with font ", newFont);
     },
     updateMeasuresPerLine(event) {
       let mpl = this.chart.style.measuresPerLine;
-      let etv = event.target.value
-      let chart = document.getElementById('chart-body');
-      chart.classList.remove('grid__col-' + mpl.toString());
+      let etv = event.target.value;
+      window.console.log('mpl: ', mpl);
+      window.console.log('etv: ', etv);
+      const chart = document.getElementById('chart-body');
+      chart.classList.remove('grid__col-' + /\d/);
       chart.classList.add('grid__col-' + etv.toString());
       this.chart.style.measuresPerLine = etv;
     },
@@ -244,7 +211,7 @@ export default {
             currentBeat = measure.beats[i]
           }
         }
-      }) 
+      });
     }
   }
 }

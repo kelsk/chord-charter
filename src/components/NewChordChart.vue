@@ -32,12 +32,12 @@
 
       <span>
         Font:
-        <select 
+        <select v-model="chart.style.font"
         v-on:change="addChartState($event, ['style', 'font']); updateFont($event.target.value)">
           <option 
           v-bind:key="font.id" 
           v-for="font in fonts" 
-          v-bind:value="chart.style.font">
+          v-bind:value="font">
             {{font}}
           </option>
         </select>
@@ -59,11 +59,12 @@
     </nav>
     </div>
     
-    <div id="chart" class="chart">
+    <div id="chart" class="chart" v-bind:style="`font-family: ${chart.style.font}`">
       <header class="chart__header">
         <span class="chart__title">
           <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
         </span>
+        &nbsp;by 
         <span class="chart__author">
         <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
         </span>
@@ -145,11 +146,11 @@
         v-bind:key="measure.id"
         v-for="measure in measures"
         >
-        <p class="chart__measure-repeat" v-on:click="addRepeat(`measure-${measures.indexOf(measure)}`, 'start')">
-          start repeat
-        </p>
-        <p class="chart__measure-repeat" v-on:click="addRepeat(`measure-${measures.indexOf(measure)}`, 'end')">
-          end repeat
+        <p class="chart__measure-bar measure-start" v-on:click="editBar(measures.indexOf(measure), 'start')">
+          ~
+          <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start'] && bars[measures.indexOf(measure)]['start']['repeat']">
+            !
+          </span>
         </p>
 
           <p class="chart__measure-beats">
@@ -203,6 +204,7 @@ export default {
       editingBeat: false,
       rawLyrics: '',
       measureStyle: {},
+      currentFont: '',
       chart: {
         style: {
           font: '',
@@ -210,18 +212,29 @@ export default {
         details: {
           title: '',
           author: '',
-      tempo: 128,
-      keySig: 'C',
-      timeSig: {
-        upper: 4,
-        lower: 4
-      },
+          tempo: 128,
+          keySig: 'C',
+          timeSig: {
+            upper: 4,
+            lower: 4
+          },
         }
       },
       title: '',
       author: '',
       rest: '~',
 
+      bars: [],
+      newBar: {
+        end: {
+          repeat: false,
+          toCoda: false,
+        },
+        start: {
+          repeat: false,
+          coda: false,
+        }
+      },
       beats: [],
       lyrics: [],
       measures: [[]],
@@ -260,8 +273,11 @@ export default {
     if (this.$store.state.currentChart) {
       let currentChart = this.$store.state.currentChart;
       this.title = currentChart.details.title;
+      this.bars = currentChart.content.bars;
+      window.console.log('bars: ', this.bars);
       this.beats = currentChart.content.beats;
       this.lyrics = currentChart.content.lyrics;
+      this.currentFont = currentChart.style.font;
       this.chart = currentChart;
       if (this.beats)
       {
@@ -282,6 +298,16 @@ export default {
       this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
+        this.bars.push({
+          end: {
+          repeat: false,
+          toCoda: false,
+          },
+          start: {
+            repeat: false,
+            coda: false,
+          }
+        });
       }
     },
     addLyrics(event) {
@@ -292,22 +318,16 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
       window.console.log(lines)
     },
-    addRepeat(index, position) {
-      let measure = document.getElementById(index);
-    if (position === 'start') {
-      this.measureStyle[index] += 'border-left: 3px solid black;';
-      measure.setAttribute('style', this.measureStyle[index]);
-    } else if (position === 'end') {
-      this.measureStyle[index] += 'border-right: 3px solid black;';
-      measure.setAttribute('style', this.measureStyle[index]);
-    }
+    editBar(index, position) {
+      this.bars[index][position]['repeat'] = true;
+      this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars})
       window.console.log(index);
       window.console.log(position);
     },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
-      const bottom = parseInt(event.target.value[1]);
-      window.console.log(bottom);
+      const bottom = parseInt(event.target.value[2]);
+      window.console.log(event.target.value);
       const timeSig = { target: { value: {upper: top, lower: bottom} } }; 
       this.addChartState(timeSig, fields)
     },
@@ -389,6 +409,7 @@ export default {
       window.console.log('successfully saved chart');
       const chart = this.$store.state.currentChart;
       window.console.log(chart);
+      this.$store.commit('addTitle', this.$route.params.title);
       db.collection('chordcharts').doc(chart.details.title).set(
         {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
       );

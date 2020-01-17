@@ -26,7 +26,7 @@ body a:hover {
 }
 
 .app__nav {
-  background-color: #adac12;
+  background-color: #0a0d0a;
 }
 .app__nav a {
   padding: 10px;
@@ -58,7 +58,7 @@ color: white
   border-top: 1px solid var(--light-gray, gray);
 }
 .chartlibrary p:hover {
-  background-color: #adac12;
+  background-color: #0a0d0a;
 }
 .chartlibrary p:hover a {
   color: white;
@@ -72,7 +72,14 @@ color: white
   display: inline-block;
 }
 .chordboard__nav li button:hover {
-background-color: #adac12}
+background-color: #0a0d0a}
+
+.chordboard__wrapper {
+  width: 80%;
+}
+.simple-keyboard {
+  max-width: 600px;
+}
 
 
 
@@ -81,7 +88,7 @@ background-color: #adac12}
 
 
 
-/* CHATT */
+/* CHART */
 
 .outer__chart {
   overflow-x: scroll;
@@ -98,8 +105,21 @@ background-color: #adac12}
   display: none;
 }
 
+.chart__title input::-webkit-input-placeholder, .chart__author input::-webkit-input-placeholder {
+  color: pink;
+  font-size: 1.5rem;
+}
+.chart__title input::-moz-placeholder, .chart__author input::-moz-placeholder {
+  color: pink;
+  font-size: 1.5rem;
+}
+
 .chart__title input, .chart__author input {
   height: 2rem;
+  width: 40%;
+  border: 1px solid black;
+  font-size: 1.5rem;
+  text-align: center;
 }
 
 .chart__details-tempo, .chart__details-key, .chart__details-time {
@@ -121,7 +141,16 @@ background-color: #adac12}
   color: white;
 }
 .chart__details-time input[type="radio"]:checked + span {
-  background-color: #adac12;
+  background-color: #0a0d0a;
+}
+
+button:hover {
+  background-color: #0a0d0a;
+  color: white;
+}
+select:hover {
+  background-color: #0a0d0a;
+  color: white;
 }
 
 
@@ -202,19 +231,31 @@ background-color: #adac12}
 .grid__col-8 {
   grid-template-columns: repeat(8, 1fr);
 }
+.grid__col-9 {
+  grid-template-columns: repeat(9, 1fr);
+}
+.grid__col-10 {
+  grid-template-columns: repeat(10, 1fr);
+}
+.grid__col-11 {
+  grid-template-columns: repeat(11, 1fr);
+}
+.grid__col-12 {
+  grid-template-columns: repeat(12, 1fr);
+}
 .chart__details {
   font-size: 1rem;
 }
 
 
-.chart__measure-repeat {
+.chart__measure-bar {
   display: inline-block;
   font-size: .8rem;
   margin: 0;
   text-align: left;
   visibility: hidden;
 }
-.chart__measure:hover .chart__measure-repeat {
+.chart__measure:hover .chart__measure-bar {
   visibility: visible;
 }
 .chart__measure-beats, .chart__measure-lyrics {

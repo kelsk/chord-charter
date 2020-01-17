@@ -1,38 +1,42 @@
 <template>
-  <div id="title">
-    Current ChordBoard: {{boardname}}
+
+  <div class="chordboard__main">
+    <div id="title">
+  Current ChordBoard: {{boardname}}
   <div>
   <ul class='chordboard__nav'>
-    <li v-bind:key="board.id" v-for="board in chordboards">
-      <button v-on:click="toggleQwertyKeyboard(board.key)">
-        {{board.key}}
-      </button>
-    </li>
-    <li>
-      <button v-on:click="createNewChordBoard">
-        + 
-      </button>
-    </li>
+  <li v-bind:key="board.id" v-for="board in chordboards">
+  <button v-on:click="toggleQwertyKeyboard(board.key)">
+  {{board.key}}
+  </button>
+  </li>
+  <li>
+  <button v-on:click="createNewChordBoard">
+  +
+  </button>
+  </li>
   </ul>
-    <div>
-
-      <div class="simple-keyboard"></div>
-    </div>
-
-  <!-- <EditKeyboard 
-    v-bind:keyboard="this.keyboard"
-    v-bind:keys="this.keys">
+  <div>
+  <div id="simple-keyboard-wrapper" class="chordboard__wrapper">
+  <div class="simple-keyboard"></div>
+  </div>
+  </div>
+  
+  <!-- <EditKeyboard
+  v-bind:keyboard="this.keyboard"
+  v-bind:keys="this.keys">
   </EditKeyboard> -->
   </div>
-    <button v-on:click="startRecording">Start Recording</button>
-    <button v-on:click="stopRecording">Stop Recording</button>
-    <p>
-      Chord progression:
-      <span v-bind:key="chord.id" v-for="chord in chordProgression">
-        {{chord}}
-      </span>
-    </p>
-    <button v-on:click="writeChordProgression">Add Chord Progression</button>
+  <button v-on:click="startRecording">Start Recording</button>
+  <button v-on:click="stopRecording">Stop Recording</button>
+  <p>
+  Chord progression:
+  <span v-bind:key="chord.id" v-for="chord in chordProgression">
+  {{chord}}
+  </span>
+  </p>
+  <button v-on:click="writeChordProgression">Add Chord Progression</button>
+  </div>
   </div>
 </template>
 
@@ -82,6 +86,7 @@ export default {
       this.callChord(e);
       }
     });
+    
   },
   mounted() {
     db.collection('chordlibrary').doc('default-chords').get()
@@ -95,11 +100,15 @@ export default {
       layout:{
         [this.$store.state.currentChordBoard]: this.$store.state.currentChordBoardLayout
       },
-        layoutName: this.$store.state.currentChordBoard
+        layoutName: this.$store.state.currentChordBoard,
+        preventMouseDownDefault: true,
     })
     this.loadChordBoard(this.$store.state.currentChordBoard)
     window.console.log('keyboard before mounted: ', this.keyboard)
-    window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard)
+    window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard);
+  },
+  afterMount() {
+
   },
   methods: {
     startRecording() {
@@ -146,9 +155,19 @@ export default {
           layout: {
             [chordboardname]: layoutPattern
           },
-          layoutName: chordboardname
-        })
-      })
+          layoutName: chordboardname,
+          preventMouseDownDefault: true,
+        });
+        // add click event to chordboard
+        if (this.boardname != 'qwerty')
+        {
+          document.getElementById("simple-keyboard-wrapper").querySelector("div").addEventListener("click", event => {
+          window.console.log('event: ', event.target.innerText);
+          this.interpretChord(event.target.innerText);
+          })
+        }
+      // this.callChord(event.target.value);
+    });
     },
     editChord() {
       window.console.log('Editing chordboard: ', this.keyboard.getOptions().layoutName)

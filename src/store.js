@@ -23,8 +23,11 @@ const store = new Vuex.Store({
       },
       style: {
         measuresPerLine: 8,
-        font: "'Alata'"
+        font: 'Alata'
       },
+      bars: 
+        {0: {start: false, end: false, coda: false},
+        },
     },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' h e l l o   w o r l d '],
@@ -54,6 +57,14 @@ const store = new Vuex.Store({
     loadChart(state, chart) {
       state.currentChart = chart;
       window.console.log('successfully loaded chart state: ', chart)
+    },
+    add(state, title) {
+      state.chartTitles.push(title);
+      window.console.log('successfully added title to state: ', title)
+    },
+    removeTitle(state, title) {
+      state.chartTitles.splice(state.chartTitles.indexOf(title), 1);
+      window.console.log('successfully removed title from state: ', title)
     }
   }
 })

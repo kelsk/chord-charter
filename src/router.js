@@ -55,7 +55,10 @@ const routes = [
       {
         path: '/:title/edit',
         name: 'edit',
-        component: NewChordChart
+        component: NewChordChart,
+        props: {
+          fonts
+        },
       },
     
     
