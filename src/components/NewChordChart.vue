@@ -175,21 +175,24 @@
   <button v-on:click="addNewChart">
     ADD NEW CHART
   </button>
+  <ChordBoard ref="chordboard" @beat="recordBeat"></ChordBoard>
   </div>
 
 </template>
 
 <script>
-import Tone from 'tone'
+// import Tone from 'tone'
 import store from '../store.js'
 import { db } from '../main.js'
 import Beat from './Beat.vue'
+import ChordBoard from './ChordBoard.vue'
 
 export default {
   name: 'NewChordChart',
   store,
   components: {
     Beat,
+    ChordBoard,
   },
   props: {
     fonts: Array
@@ -370,18 +373,19 @@ export default {
         window.console.log('its a deleeeeete!!!!');
         this.removeBeat(this.beats.length - 1)
       }
-      const note = e.key.toLowerCase();
-      this.charToNote.forEach((char) => {
-        if (char.hasOwnProperty(note)) {
-          window.console.log('char has own property of ', note);
-          const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
-          synth.triggerAttackRelease(char[note], "8n");  
-          window.console.log("successfully played chord ", char.chord);
-          this.chordProgression.push(char.chord);
-          window.console.log(this.chordProgression);
-        this.recordBeat(char.chord)
-        }
-      });
+      this.$refs.chordboard.callChord(e)
+      // const note = e.key.toLowerCase();
+      // this.charToNote.forEach((char) => {
+      //   if (char.hasOwnProperty(note)) {
+      //     window.console.log('char has own property of ', note);
+      //     const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
+      //     synth.triggerAttackRelease(char[note], "8n");  
+      //     window.console.log("successfully played chord ", char.chord);
+      //     this.chordProgression.push(char.chord);
+      //     window.console.log(this.chordProgression);
+      // this.recordBeat(char.chord)
+      //   }
+      // });
     },
     recordBeat(beat) {
       this.addBeat(beat);

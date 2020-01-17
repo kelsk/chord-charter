@@ -25,9 +25,14 @@ const store = new Vuex.Store({
         measuresPerLine: 8,
         font: 'Alata'
       },
-      bars: 
-        {0: {start: false, end: false, coda: false},
+      bars: [
+        {
+          0: {
+            start: { repeat: false, coda: false },
+            end: { repeat: false, toCoda: false }
+          }
         },
+      ],
     },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' h e l l o   w o r l d '],

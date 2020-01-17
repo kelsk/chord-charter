@@ -208,7 +208,8 @@ export default {
         window.console.log('result = ', result);
         result.keys.forEach(i => {
           if (i.key === letter) {
-            this.interpretChord(i.chord)
+            this.interpretChord(i.chord);
+            this.$emit('beat', i.chord)
           }
         })
       })
