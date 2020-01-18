@@ -105,6 +105,23 @@ background-color: #0a0d0a}
   display: none;
 }
 
+.chart__new .chordboard__main {
+  text-align: center;
+}
+.chart__new .chordboard__wrapper {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+.chart__new .simple-keyboard {
+  display: inline-block;
+}
+
+
+
+
+
 .chart__title input::-webkit-input-placeholder, .chart__author input::-webkit-input-placeholder {
   color: pink;
   font-size: 1.5rem;

@@ -172,9 +172,9 @@
       </section>
       </div>
 
-  <button v-on:click="addNewChart">
+  <!-- <button v-on:click="addNewChart">
     ADD NEW CHART
-  </button>
+  </button> -->
   <ChordBoard ref="chordboard" @beat="recordBeat"></ChordBoard>
   </div>
 
@@ -226,18 +226,7 @@ export default {
       title: '',
       author: '',
       rest: '~',
-
       bars: [],
-      newBar: {
-        end: {
-          repeat: false,
-          toCoda: false,
-        },
-        start: {
-          repeat: false,
-          coda: false,
-        }
-      },
       beats: [],
       lyrics: [],
       measures: [[]],
@@ -275,11 +264,14 @@ export default {
   mounted(){
     if (this.$store.state.currentChart) {
       let currentChart = this.$store.state.currentChart;
+      window.console.log('current chart: ', currentChart);
       this.title = currentChart.details.title;
+      this.beats = currentChart.content.beats;
+      window.console.log('beats: ', this.beats);
       this.bars = currentChart.content.bars;
       window.console.log('bars: ', this.bars);
-      this.beats = currentChart.content.beats;
       this.lyrics = currentChart.content.lyrics;
+      currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
       this.currentFont = currentChart.style.font;
       this.chart = currentChart;
       if (this.beats)
@@ -290,6 +282,9 @@ export default {
     }
   },
   methods: {
+    addBars() {
+      this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars});
+    },
     addBeat(beat) {
       window.console.log('addBeat');
       this.beats.push(beat);
@@ -298,10 +293,12 @@ export default {
     },
     addBeatsToMeasures(beat, id) {
       let i = this.measures.length - 1;
+      window.console.log(this.bars)
       this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
-        this.bars.push({
+        window.console.log('bars: ', this.bars);
+        let newBar = {
           end: {
           repeat: false,
           toCoda: false,
@@ -310,7 +307,10 @@ export default {
             repeat: false,
             coda: false,
           }
-        });
+        };
+        this.bars.push(newBar);
+      this.addBars();
+
       }
     },
     addLyrics(event) {
@@ -406,7 +406,7 @@ export default {
     },
     saveChart() {
       const newTitle = this.$store.state.currentChart.details.title;
-      if (this.title != newTitle) {
+      if (this.$store.state.chartTitles.includes(newTitle)) {
         let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nOverwrite existing chart ${newTitle}?`);
         if (!titleConfirmation) return;
       }
@@ -434,11 +434,15 @@ export default {
       let mpl = this.chart.style.measuresPerLine;
       let etv = event.target.value
       let chart = document.getElementById('chart-body');
-      chart.classList.remove('grid__col-' + mpl.toString());
+      window.console.log('measures per line: ', mpl);
+      window.console.log('event target value: ', etv);
+      window.console.log('classlist: ', chart.classList);
+      chart.classList.remove('grid__col-' + /\d/);
       chart.classList.add('grid__col-' + etv.toString());
       this.chart.style.measuresPerLine = etv;
     },
     viewLyricsInput() {
+      this.recording = false;
       this.lyricInputVisible = !this.lyricInputVisible;
     },
     writeChordProgression() {

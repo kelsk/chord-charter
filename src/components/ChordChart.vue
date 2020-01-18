@@ -13,6 +13,7 @@
         {{$route.params.title}}
       </span>
       <span>
+        <PlayBack v-bind:chordProgression="$store.state.currentChart.content.beats"></PlayBack>
         <router-link :to="$route.params.title + `/edit`">
         <button>
           Edit Chart
@@ -86,11 +87,15 @@
 
 <script>
 import { db } from '../main.js'
+import PlayBack from './PlayBack.vue'
 
 export default {
   name: 'ChordChart',
   props: {
     fonts: Array
+  },
+  components: {
+    PlayBack,
   },
   updated() {
     // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
@@ -121,6 +126,8 @@ export default {
     db.collection('chordcharts').doc(route).get()
     .then(response => {
       const chart = response.data();
+      window.console.log('response: ', response);
+      window.console.log(response.data());
       if (!chart) {
         this.chart.error = true
       } else {

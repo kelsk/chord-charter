@@ -60,12 +60,13 @@ export default {
         }
       },
       content: {
+        bars: [],
         beats: [],
         lyrics: [],
       },
       style: {
         measuresPerLine: 8,
-        font: "'Alata'"
+        font: 'Alata'
       },
       };
       this.$store.commit('loadChart', currentChart)

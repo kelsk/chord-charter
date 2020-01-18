@@ -18,6 +18,7 @@ const store = new Vuex.Store({
         }
       },
       content: {
+        bars: [],
         beats: [],
         lyrics: [],
       },
@@ -25,18 +26,9 @@ const store = new Vuex.Store({
         measuresPerLine: 8,
         font: 'Alata'
       },
-      bars: [
-        {
-          0: {
-            start: { repeat: false, coda: false },
-            end: { repeat: false, toCoda: false }
-          }
-        },
-      ],
     },
     currentChordBoard: 'default',
-    currentChordBoardLayout: [' h e l l o   w o r l d '],
-    message: 'store state'
+    currentChordBoardLayout: [' c h o r d   b o a r d '],
   },
   mutations: {
     addChartTitles(state, titles) {
@@ -52,7 +44,11 @@ const store = new Vuex.Store({
       window.console.log('successfully stored layout state: ', n)
     },
     updateChordBoard(state, n) {
-      state.keyboard = n;
+      if (n[0] === 'name') {
+        state.currentChordBoard = n[1]
+      } else {
+        state.keyboard = n[1];
+      }
       window.console.log('successfully updated chordboard state: ', n)
     },
     editChart(state, updates) {
@@ -63,7 +59,7 @@ const store = new Vuex.Store({
       state.currentChart = chart;
       window.console.log('successfully loaded chart state: ', chart)
     },
-    add(state, title) {
+    addTitle(state, title) {
       state.chartTitles.push(title);
       window.console.log('successfully added title to state: ', title)
     },

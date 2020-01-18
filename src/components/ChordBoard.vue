@@ -1,24 +1,9 @@
 <template>
 
   <div class="chordboard__main">
-    <div id="title">
-  Current ChordBoard: {{boardname}}
-  <div>
-  <ul class='chordboard__nav'>
-  <li v-bind:key="board.id" v-for="board in chordboards">
-  <button v-on:click="toggleQwertyKeyboard(board.key)">
-  {{board.key}}
-  </button>
-  </li>
-  <li>
-  <button v-on:click="createNewChordBoard">
-  +
-  </button>
-  </li>
-  </ul>
-  <div>
   <div id="simple-keyboard-wrapper" class="chordboard__wrapper">
-  <div class="simple-keyboard"></div>
+  <div class="simple-keyboard">
+  </div>
   </div>
   </div>
   
@@ -26,18 +11,7 @@
   v-bind:keyboard="this.keyboard"
   v-bind:keys="this.keys">
   </EditKeyboard> -->
-  </div>
-  <button v-on:click="startRecording">Start Recording</button>
-  <button v-on:click="stopRecording">Stop Recording</button>
-  <p>
-  Chord progression:
-  <span v-bind:key="chord.id" v-for="chord in chordProgression">
-  {{chord}}
-  </span>
-  </p>
-  <button v-on:click="writeChordProgression">Add Chord Progression</button>
-  </div>
-  </div>
+
 </template>
 
 <script>
@@ -60,7 +34,7 @@ export default {
   
   data() {
     return {
-            chord: '',
+      chord: '',
       chordData: [],
 
       // chordboards should populate
@@ -187,17 +161,6 @@ export default {
     toggleQwertyKeyboard(boardname) {
       this.loadChordBoard(boardname);
       this.stopRecording();
-    },
-    createNewChordBoard() {
-      window.alert('can\'t do that yet :/ ');
-    },
-    writeChordProgression() {
-      let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
-      submittedChordProgression.set({
-        chords: this.chordProgression,
-      }, {merge: true}).then(() => {
-        window.console.log('Added chord prog for ', submittedChordProgression.id)
-      })
     },
 
     callChord(e) {
