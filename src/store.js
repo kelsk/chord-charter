@@ -29,6 +29,7 @@ const store = new Vuex.Store({
     },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' c h o r d   b o a r d '],
+    currentUser: undefined,
   },
   mutations: {
     addChartTitles(state, titles) {
@@ -58,6 +59,10 @@ const store = new Vuex.Store({
     loadChart(state, chart) {
       state.currentChart = chart;
       window.console.log('successfully loaded chart state: ', chart)
+    },
+    setCurrentUser(state, user) {
+      state.currentUser = user;
+      window.console.log('successfully added user to state: ', user);
     },
     addTitle(state, title) {
       state.chartTitles.push(title);

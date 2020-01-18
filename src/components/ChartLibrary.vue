@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$store.state.currentUser">
     <router-link :to="'/charts'">
     Chord Chart Library
     </router-link>

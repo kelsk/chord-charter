@@ -262,23 +262,11 @@ export default {
     });
   },
   mounted(){
-    if (this.$store.state.currentChart) {
-      let currentChart = this.$store.state.currentChart;
-      window.console.log('current chart: ', currentChart);
-      this.title = currentChart.details.title;
-      this.beats = currentChart.content.beats;
-      window.console.log('beats: ', this.beats);
-      this.bars = currentChart.content.bars;
-      window.console.log('bars: ', this.bars);
-      this.lyrics = currentChart.content.lyrics;
-      currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
-      this.currentFont = currentChart.style.font;
-      this.chart = currentChart;
-      if (this.beats)
-      {
-      this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
-      }
-      window.console.log('NewChordChart: mounted chart: ', currentChart);
+    window.console.log('PARAMS: ', this.$route.params)
+    if(!this.$route.params.title) {
+      this.clearState();
+    } else {
+      this.loadChart();
     }
   },
   methods: {
@@ -346,6 +334,28 @@ export default {
       );
       window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
     },
+    clearState() {
+      const currentChart = {
+        details: {
+        title: 'untitled',
+        timeSig: {
+          upper: 4,
+          lower: 4
+        }
+      },
+      content: {
+        bars: [],
+        beats: [],
+        lyrics: [],
+      },
+      style: {
+        measuresPerLine: 8,
+        font: 'Alata'
+      },
+      };
+      this.$store.commit('loadChart', currentChart);
+      this.loadChart();
+    },
     editBeat(chord, id) {
       window.console.log('editing beat with id ', id);
       this.measures.forEach(measure => {
@@ -361,6 +371,26 @@ export default {
       this.beats[id] = chord;
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats}, {merge: false});
       window.console.log('new beats: ', this.$store.state.currentChart.content.beats[0]);
+    },
+    loadChart() {
+      if (this.$store.state.currentChart) {
+        let currentChart = this.$store.state.currentChart;
+        window.console.log('current chart: ', currentChart);
+        this.title = currentChart.details.title;
+        this.beats = currentChart.content.beats;
+        window.console.log('beats: ', this.beats);
+        this.bars = currentChart.content.bars;
+        window.console.log('bars: ', this.bars);
+        this.lyrics = currentChart.content.lyrics;
+        currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
+        this.currentFont = currentChart.style.font;
+        this.chart = currentChart;
+        if (this.beats)
+        {
+          this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
+        }
+        window.console.log('NewChordChart: mounted chart: ', currentChart);
+      }
     },
     playChord(e) {
       window.console.log('playChord: this.beats = ', this.beats);
