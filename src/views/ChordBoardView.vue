@@ -3,63 +3,138 @@
     <h1>
       ChordBoards
     </h1>
-    <div>
-      Input a Chord: <input type="text" v-on:change="interpretChord($event.target.value)">
-      <span>
-        {{ chord }}
-      </span>
+  <div id="title">
+  Current ChordBoard: {{$store.state.currentChordBoard}}
+  <div>
+    <div class="chordboard__nav-wrapper">
+  <ul class='chordboard__nav'>
+  <li v-bind:key="board.id" v-for="board in chordboards">
+    <button
+    v-if="$store.state.currentChordBoard === board.key"
+    class="chordboard__selected" 
+    v-on:click="toggleQwertyKeyboard(board.key)">
+      {{board.key}}
+    </button>
+    <button v-else
+    v-on:click="toggleQwertyKeyboard(board.key)">
+      {{board.key}}
+    </button>
+  </li>
+  <li>
+  <button v-on:click="createNewChordBoard">
+  +
+  </button>
+  </li>
+  </ul>
+  <div class="chordboard__edit-btn">
+    <button v-on:click="editChordBoard">
+    Edit {{$store.state.currentChordBoard}}
+    </button>
+  </div>
     </div>
-    <ChordBoard></ChordBoard>
+
+    <ChordBoard v-if="!editingChordBoard" ref="chordboard" v-bind:chordboards="chordboards"></ChordBoard>
+    <EditChordBoard 
+      v-if="editingChordBoard" 
+      v-bind:keys="qwerty"
+      v-bind:chordBoardToEdit="chordBoardToEdit">
+      </EditChordBoard>
+
+
+
+  <button v-on:click="startRecording">Start Recording</button>
+  <button v-on:click="stopRecording">Stop Recording</button>
+  <p>
+  Chord progression:
+  <span v-bind:key="chord.id" v-for="chord in chordProgression">
+  {{chord}}
+  </span>
+  </p>
+  <button v-on:click="writeChordProgression">Add Chord Progression</button>
+  </div>
+  </div>
+
+
   </div>
 </template>
 <script>
 import ChordBoard from '../components/ChordBoard.vue'
+import EditChordBoard from '../components/EditChordBoard.vue'
+import { db } from '../main.js'
+
 export default {
   name: 'ChordBoards',
   components: {
-    ChordBoard
+    ChordBoard,
+    EditChordBoard,
   },
   data() {
     return {
-      chord: 'CHORD!'
+      boardname: this.$store.state.currentChordBoard,
+      chordboards: [],
+      chordBoardToEdit: 'New ChordBoard',
+      chordProgression: [],
+      editingChordBoard: false,
+      qwerty: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'],
+      recording: false,
     }
   },
-  methods: {
-    interpretChord(input) {
-      const qualities = ['m', 'M', 'aug', 'dim', '+', '°'];
-      let root = '';
-      let quality = '';
-      let altNotes = []
-      let altString = '';
-        window.console.log('input = ', input);
-      if (input.length === 1) {
-        root = input[0];
-        this.chord = root;
-        return;
-      }
-      if (input[1] === 'b' || input[1] === '#') {
-        root = input.substr(0, 2);
-        input = input.substr(2, input.length);
-        this.chord = root;
-        window.console.log('root = ', root);
-        window.console.log('input = ', input)
-      } else {
-        root = input.substr(0, 1);
-        input = input.substr(1, input.length);
-      }
-      if (qualities.includes(input[0])) {
-        quality = input.substr(0, 1);
-        input = input.substr(1, input.length);
-        window.console.log('quality = ', quality);
-      }
-      if (!Number.isNaN(input[input.length-1])) {
-        altNotes.push(input.substr(input.length - 2, 2));
-        input = input.substr(0, input.length - 2);
-        window.console.log('altnotes = ', altNotes);
-        window.console.log('input = ', input)
-      }
-      this.chord = root + quality + altString
+  created() {
+    db.collection('chordboards').get()
+    .then(snapshot => snapshot.forEach(doc => {
+      this.chordboards.push({key: doc.id, chords: doc.data()})
     }
-  }
+    ));
+},
+  methods: {
+    toggleQwertyKeyboard(boardname) {
+      this.editingChordBoard = false;
+      this.$store.commit('updateChordBoard', ['name', boardname]);
+      this.$refs.chordboard.loadChordBoard(boardname);
+      this.stopRecording();
+    },
+    createNewChordBoard() {
+      this.editingChordBoard = true;
+    },
+    editChordBoard() {
+      this.chordBoardToEdit = this.$store.state.currentChordBoard;
+      this.editingChordBoard = true;
+    },
+    startRecording() {
+      this.recording = true;
+    },
+    stopRecording() {
+      this.recording = false
+    },
+
+    writeChordProgression() {
+      let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
+      submittedChordProgression.set({
+        chords: this.chordProgression,
+      }, {merge: true}).then(() => {
+        window.console.log('Added chord prog for ', submittedChordProgression.id)
+      })
+    },
+    
+  },
 }
 </script>
+<style scoped>
+.chordboard__nav-wrapper {
+  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.chordboard__selected {
+  background-color: black;
+  color: white;
+  display: inline-block;
+}
+
+.chordboard__edit-btn {
+  width: 100%;
+  display: inline-block;
+  text-align: right;
+  margin: 16px 0px;
+}
+</style>

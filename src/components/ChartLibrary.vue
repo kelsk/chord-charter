@@ -1,14 +1,16 @@
 <template>
-  <div>
+  <div v-if="$store.state.currentUser">
+    <router-link :to="'/charts'">
     Chord Chart Library
-  <div>
+    </router-link>
+  <div class="chartlibrary">
     <p>
       <router-link :to="`charts/new`">
       Add New Chart
       </router-link>
     </p>
-    <p v-bind:key="chart.id" v-for="chart in chartTitles">
-      <router-link :to="chart.id">
+    <p v-bind:key="chart.id" v-for="chart in $store.state.chartTitles">
+      <router-link :to="`/${chart.id}`">
       {{chart.title}}
       </router-link>
     </p>
@@ -43,6 +45,7 @@ export default {
         })
       })
     window.console.log("chartTitles = ", this.chartTitles)
+    this.$store.commit('addChartTitles', this.chartTitles)
     }
   )
   },
@@ -57,12 +60,13 @@ export default {
         }
       },
       content: {
+        bars: [],
         beats: [],
         lyrics: [],
       },
       style: {
         measuresPerLine: 8,
-        font: "'Alata'"
+        font: 'Alata'
       },
       };
       this.$store.commit('loadChart', currentChart)

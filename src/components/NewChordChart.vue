@@ -1,13 +1,23 @@
 <template>
-  <div>
-  <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
-      <span>
-        {{$store.state.currentChart.details.title}}
-      </span>
+  <div class="chart__new">
+    <link href="https://fonts.googleapis.com/css?family=Acme|Alata|Asap+Condensed|Boogaloo|Calistoga|Caveat+Brush|Fredoka+One|Tinos&display=swap" rel="stylesheet">
+
+    <div class="chart__options-wrapper">
     <nav class="chart__options">
-      <span>
-        Lyrics: 
-        <textarea v-on:change="addLyrics($event)"></textarea>
+      <router-link :to="`/${$route.params.title}`" class="chart__doc-id">
+        {{$route.params.title}}
+      </router-link>
+      <span class="chart__save">
+        <button v-on:click="saveChart">
+          Save Chart
+        </button>
+      </span>
+      <span class="chart__options-lyrics">
+        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">Add Lyrics</button>
+        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" 
+        v-model="rawLyrics"
+        v-on:change="addLyrics($event)">
+        </textarea>
       </span>
 
       <span>
@@ -15,19 +25,19 @@
         <input type="number" 
         max="10" 
         min="1" 
-        placeholder="8" 
+        v-bind:placeholder="mpl" 
         v-bind:value="chart.style.measuresPerLine" 
         v-on:change="addChartState($event, ['style', 'measuresPerLine']); updateMeasuresPerLine($event)" />
       </span>
 
       <span>
-        Chord Font:
-        <select 
+        Font:
+        <select v-model="chart.style.font"
         v-on:change="addChartState($event, ['style', 'font']); updateFont($event.target.value)">
           <option 
           v-bind:key="font.id" 
           v-for="font in fonts" 
-          v-bind:value="chart.style.font">
+          v-bind:value="font">
             {{font}}
           </option>
         </select>
@@ -45,105 +55,144 @@
         v-model="publicDomain" 
         v-bind:value="false">No
       </span>
-      <span>
-        Other Options
-      </span>
 
     </nav>
-    <div  id="chart" class="chart">
-    <header class="chart__header">
-      <span class="chart__title">
-        <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
-      </span>
-      <span class="chart__author">
-      <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
-      </span>
-    </header>
-
-    <section id="details" class="chart__details">
-      <span class="chart__details-tempo">
-        Tempo: 
-        <input type="number" 
-        v-bind:placeholder="chart.details.tempo" 
-        v-on:change="addChartState($event, ['details', 'tempo'])">
-      </span>
-
-      <span class="chart__details-key">
-        Key: 
-        <input type="text" 
-        v-bind:placeholder="chart.details.keySig"
-        v-on:change="addChartState($event, ['details', 'keySig'])">
-      </span>
-      <span class="chart__details-time">
-        Time: 
-        <input type="radio" 
-        name="timeSig" 
-        v-model="timeSig"
-        v-bind:value="[3, 4]"
-        v-on:click="addTimeSig($event, ['details', 'timeSig'])">
-          3/4
-        <input type="radio" 
-        name="timeSig" 
-        v-model="timeSig"
-        v-bind:value="[4, 4]" 
-        v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
-          4/4
-      </span>
-    </section>
-
-    <nav>
-      <button class="btn btn__start"
-      v-on:click="startRecording">
-        START RECORDING
-      </button>
-      <button class="btn btn__stop"
-      v-on:click="stopRecording">
-        STOP RECORDING
-      </button>
-    </nav>
-
-    <section id="chart-body" class="chart__body grid__col-4">
-      <div
-      v-bind:key="measure.id"
-      v-for="measure in measures"
-      >
-        <p class="chart__measure-beats">
-
-        <span class="beat" 
-          v-bind:key="beat.id"
-          v-for="beat in measure">
-          <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
-        </span>
-        </p>
-        <p class="chart__measure-lyrics">
-          <span v-if="lyrics">
-            {{lyrics[measures.indexOf(measure)]}}
-          </span>
-          <input v-else class="lyric"
-          type="text" placeholder="lyrics">
-        </p>
-      </div>
-    </section>
     </div>
+    
+    <div id="chart" class="chart" v-bind:style="`font-family: ${chart.style.font}`">
+      <header class="chart__header">
+        <span class="chart__title">
+          <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
+        </span>
+        &nbsp;by 
+        <span class="chart__author">
+        <input type="text" v-bind:placeholder="chart.details.author" v-on:change="addChartState($event, ['details', 'author'])">
+        </span>
+      </header>
 
-<button v-on:click="addNewChart">
-  ADD NEW CHART
-</button>
+      <section id="details" class="chart__details">
+        <span class="chart__details-tempo">
+          Tempo: 
+          <input type="number" 
+          v-bind:placeholder="chart.details.tempo" 
+          v-on:change="addChartState($event, ['details', 'tempo'])">
+        </span>
+
+        <span class="chart__details-key">
+          Key: 
+          <input type="text" 
+          v-bind:placeholder="chart.details.keySig"
+          v-on:change="addChartState($event, ['details', 'keySig'])">
+        </span>
+        <span class="chart__details-time">
+          Time: 
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[2, 4]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            2/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[3, 4]"
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])">
+          <span>
+            3/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[4, 4]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            4/4
+          </span>
+</label>
+<label>
+          <input type="radio" 
+          name="timeSig" 
+          v-model="timeSig"
+          v-bind:value="[6, 8]" 
+          v-on:click="addTimeSig($event, ['details', 'timeSig'])"> 
+          <span>
+            6/8
+          </span>
+</label>
+        </span>
+      </section>
+
+      <nav>
+        <button class="btn btn__start"
+        v-on:click="startRecording">
+          START RECORDING
+        </button>
+        <button class="btn btn__stop"
+        v-on:click="stopRecording">
+          STOP RECORDING
+        </button>
+      </nav>
+
+      <section id="chart-body" class="chart__body grid__col-4">
+        <div class="chart__measure"
+        v-bind:id="`measure-${measures.indexOf(measure)}`"
+        v-bind:key="measure.id"
+        v-for="measure in measures"
+        >
+        <p class="chart__measure-bar measure-start" v-on:click="editBar(measures.indexOf(measure), 'start')">
+          ~
+          <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start'] && bars[measures.indexOf(measure)]['start']['repeat']">
+            !
+          </span>
+        </p>
+
+          <p class="chart__measure-beats">
+
+          <span class="beat" 
+            v-bind:key="beat.id"
+            v-for="beat in measure">
+            <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
+          </span>
+          </p>
+          <p class="chart__measure-lyrics">
+            <span v-if="lyrics">
+              {{lyrics[measures.indexOf(measure)]}}
+            </span>
+            <input v-else class="lyric"
+            type="text" placeholder="lyrics">
+          </p>
+        </div>
+      </section>
+      </div>
+
+  <!-- <button v-on:click="addNewChart">
+    ADD NEW CHART
+  </button> -->
+  <ChordBoard ref="chordboard" @beat="recordBeat"></ChordBoard>
   </div>
 
 </template>
 
 <script>
-import Tone from 'tone'
+// import Tone from 'tone'
 import store from '../store.js'
 import { db } from '../main.js'
 import Beat from './Beat.vue'
+import ChordBoard from './ChordBoard.vue'
 
 export default {
   name: 'NewChordChart',
   store,
   components: {
     Beat,
+    ChordBoard,
   },
   props: {
     fonts: Array
@@ -152,10 +201,14 @@ export default {
     return {
       // can't access nested elements with v-model
       //TODO: fix publicDomain & timeSig
+      lyricInputVisible: false,
       publicDomain: false,
       timeSig: [4, 4],
       editingBeat: false,
-
+      rawLyrics: '',
+      measureStyle: {},
+      currentFont: '',
+      mpl: 8,
       chart: {
         style: {
           font: '',
@@ -163,23 +216,26 @@ export default {
         details: {
           title: '',
           author: '',
-      tempo: 128,
-      keySig: 'C',
-      timeSig: {
-        upper: 4,
-        lower: 4
-      },
+          tempo: 128,
+          keySig: 'C',
+          timeSig: {
+            upper: 4,
+            lower: 4
+          },
         }
       },
       title: '',
       author: '',
       rest: '~',
-
+      bars: [],
       beats: [],
       lyrics: [],
       measures: [[]],
       newMeasure: [],
       recording: false,
+
+      // TODO: replace charToNote with chords assessed from chord library.
+      // also fix chord library.
       charToNote: [
         { a: ['C4', 'E4', 'G4'], chord: 'C' },
         { w: ['C#4'], chord: 'C#' },
@@ -207,20 +263,17 @@ export default {
     });
   },
   mounted(){
-    if (this.$store.state.currentChart) {
-      let currentChart = this.$store.state.currentChart;
-      this.title = currentChart.details.title;
-      this.beats = currentChart.content.beats;
-      this.lyrics = currentChart.content.lyrics;
-      this.chart = currentChart;
-      if (this.beats)
-      {
-      this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
-      }
-      window.console.log('NewChordChart: mounted chart: ', currentChart);
+    window.console.log('PARAMS: ', this.$route.params)
+    if(!this.$route.params.title) {
+      this.clearState();
+    } else {
+      this.loadChart();
     }
   },
   methods: {
+    addBars() {
+      this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars});
+    },
     addBeat(beat) {
       window.console.log('addBeat');
       this.beats.push(beat);
@@ -229,21 +282,44 @@ export default {
     },
     addBeatsToMeasures(beat, id) {
       let i = this.measures.length - 1;
+      window.console.log(this.bars)
       this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
+        window.console.log('bars: ', this.bars);
+        let newBar = {
+          end: {
+          repeat: false,
+          toCoda: false,
+          },
+          start: {
+            repeat: false,
+            coda: false,
+          }
+        };
+        this.bars.push(newBar);
+      this.addBars();
+
       }
     },
     addLyrics(event) {
+      let rawLyrics = event.target.value;
+      this.rawLyrics = rawLyrics;
       let lines = event.target.value.split('\n');
       this.lyrics = lines;
       this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
       window.console.log(lines)
     },
+    editBar(index, position) {
+      this.bars[index][position]['repeat'] = true;
+      this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars})
+      window.console.log(index);
+      window.console.log(position);
+    },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
-      const bottom = parseInt(event.target.value[1]);
-      window.console.log(bottom);
+      const bottom = parseInt(event.target.value[2]);
+      window.console.log(event.target.value);
       const timeSig = { target: { value: {upper: top, lower: bottom} } }; 
       this.addChartState(timeSig, fields)
     },
@@ -258,6 +334,28 @@ export default {
         chart
       );
       window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
+    },
+    clearState() {
+      const currentChart = {
+        details: {
+        title: 'untitled',
+        timeSig: {
+          upper: 4,
+          lower: 4
+        }
+      },
+      content: {
+        bars: [],
+        beats: [],
+        lyrics: [],
+      },
+      style: {
+        measuresPerLine: 8,
+        font: 'Alata'
+      },
+      };
+      this.$store.commit('loadChart', currentChart);
+      this.loadChart();
     },
     editBeat(chord, id) {
       window.console.log('editing beat with id ', id);
@@ -275,6 +373,27 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats}, {merge: false});
       window.console.log('new beats: ', this.$store.state.currentChart.content.beats[0]);
     },
+    loadChart() {
+      if (this.$store.state.currentChart) {
+        let currentChart = this.$store.state.currentChart;
+        window.console.log('current chart: ', currentChart);
+        this.title = currentChart.details.title;
+        this.mpl = currentChart.style.measuresPerLine;
+        this.beats = currentChart.content.beats;
+        window.console.log('beats: ', this.beats);
+        this.bars = currentChart.content.bars;
+        window.console.log('bars: ', this.bars);
+        this.lyrics = currentChart.content.lyrics;
+        currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
+        this.currentFont = currentChart.style.font;
+        this.chart = currentChart;
+        if (this.beats)
+        {
+          this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
+        }
+        window.console.log('NewChordChart: mounted chart: ', currentChart);
+      }
+    },
     playChord(e) {
       window.console.log('playChord: this.beats = ', this.beats);
       if (e.code === "Space") {
@@ -286,18 +405,19 @@ export default {
         window.console.log('its a deleeeeete!!!!');
         this.removeBeat(this.beats.length - 1)
       }
-      const note = e.key.toLowerCase();
-      this.charToNote.forEach((char) => {
-        if (char.hasOwnProperty(note)) {
-          window.console.log('char has own property of ', note);
-          const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
-          synth.triggerAttackRelease(char[note], "8n");  
-          window.console.log("successfully played chord ", char.chord);
-          this.chordProgression.push(char.chord);
-          window.console.log(this.chordProgression);
-        this.recordBeat(char.chord)
-        }
-      });
+      this.$refs.chordboard.callChord(e)
+      // const note = e.key.toLowerCase();
+      // this.charToNote.forEach((char) => {
+      //   if (char.hasOwnProperty(note)) {
+      //     window.console.log('char has own property of ', note);
+      //     const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
+      //     synth.triggerAttackRelease(char[note], "8n");  
+      //     window.console.log("successfully played chord ", char.chord);
+      //     this.chordProgression.push(char.chord);
+      //     window.console.log(this.chordProgression);
+      // this.recordBeat(char.chord)
+      //   }
+      // });
     },
     recordBeat(beat) {
       this.addBeat(beat);
@@ -316,6 +436,21 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
       // this.measures[-1].splice(-1, 1)
     },
+    saveChart() {
+      const newTitle = this.$store.state.currentChart.details.title;
+      if (this.$store.state.chartTitles.includes(newTitle)) {
+        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nOverwrite existing chart ${newTitle}?`);
+        if (!titleConfirmation) return;
+      }
+      window.console.log('successfully saved chart');
+      const chart = this.$store.state.currentChart;
+      window.console.log(chart);
+      this.$store.commit('addTitle', this.$route.params.title);
+      db.collection('chordcharts').doc(chart.details.title).set(
+        {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
+      );
+      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
+    },
     startRecording() {
       this.recording = true;
     },
@@ -328,12 +463,20 @@ export default {
       window.console.log(document.getElementById('chart').fontFamily);
     },
     updateMeasuresPerLine(event) {
-      let mpl = this.chart.style.measuresPerLine;
-      let etv = event.target.value
-      let chart = document.getElementById('chart-body');
-      chart.classList.remove('grid__col-' + mpl.toString());
-      chart.classList.add('grid__col-' + etv.toString());
+      let etv = event.target.value;
+      const chart = document.getElementById('chart-body');
+      for (let i = 1; i <= 12; i++){
+        if (i.toString() === etv) {
+          chart.classList.add(`grid__col-${i}`)
+        } else {
+        chart.classList.remove('grid__col-'+ `${i}`);
+        }
+      }
       this.chart.style.measuresPerLine = etv;
+    },
+    viewLyricsInput() {
+      this.recording = false;
+      this.lyricInputVisible = !this.lyricInputVisible;
     },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)

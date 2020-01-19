@@ -1,54 +1,26 @@
 <template>
+  <div>
+    Chord Library
+    <div>
+      Input a Chord: <input type="text" v-on:change="interpretChord($event.target.value)">
+      <span>
+        {{ chord }}
+      </span>
+    </div>
 
-  <div class="chordboard__main">
-  <div id="simple-keyboard-wrapper" class="chordboard__wrapper">
-  <div class="simple-keyboard">
   </div>
-  </div>
-  </div>
-  
 </template>
-
 <script>
-import Tone from 'tone'
-import Keyboard from 'simple-keyboard'
-import 'simple-keyboard/build/css/index.css'
 import { db } from '../main.js'
-import store from '../store.js'
+import Tone from 'tone'
 
 export default {
-  name: 'ChordBoard',
-  store,
-  props: {
-    username: String,
-    chordboards: Array,
-  },
-  
+  name: 'ChordLibrary',
   data() {
     return {
       chord: '',
       chordData: [],
-
-      // chordboards should populate
-      // maybe using state
-      // from the user's total chordboards
-      keys: [],
-      keyboard: null,
-      boardname: this.$store.state.currentChordBoard,
-      boardLayout: [],
-      recording: false,
-      toggleBoardText: "View Qwerty Keys",
-      charToNote: [],
-      chordProgression: []
     }
-  },
-  created(){
-    window.addEventListener("keypress", e => {
-      if (this.recording === true && this.boardname != 'qwerty') {
-      this.callChord(e);
-      }
-    });
-    
   },
   mounted() {
     db.collection('chordlibrary').doc('default-chords').get()
@@ -57,111 +29,8 @@ export default {
       this.chordData = data;
       window.console.log(this.chordData)
       });
-
-    this.keyboard = new Keyboard({
-      layout:{
-        [this.$store.state.currentChordBoard]: this.$store.state.currentChordBoardLayout
-      },
-        layoutName: this.$store.state.currentChordBoard,
-        preventMouseDownDefault: true,
-    })
-    this.loadChordBoard(this.$store.state.currentChordBoard)
-    window.console.log('keyboard before mounted: ', this.keyboard)
-    window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard);
-  },
-  afterMount() {
-
   },
   methods: {
-    startRecording() {
-      this.recording = true;
-    },
-    stopRecording() {
-      this.recording = false
-    },
-    loadChordBoard(chordboardname) {
-      db.collection('chordboards').doc(chordboardname).get()
-      .then(doc => {
-        let layoutPattern = [];
-        if (chordboardname === 'qwerty') {
-          layoutPattern = doc.data().qwerty;
-          
-        } else {
-          let keys = doc.data().keys;
-          this.keys = doc.data().keys;
-          let row1 = keys.splice(0, 10);
-          let rowString = '';
-          row1.forEach(item => {
-            rowString += item.chord + ' ';
-          })
-          layoutPattern.push(rowString);
-          rowString = ' ';
-          let row2 = keys.splice(0, 9);
-          row2.forEach(item => {
-            rowString += item.chord + ' ';
-          })
-          layoutPattern.push(rowString);
-          rowString = ' ';
-          let row3 = keys.splice(0, 7);
-          row3.forEach(item => {
-            rowString += item.chord + ' ';
-          })
-          layoutPattern.push(rowString);
-        }
-
-        this.boardLayout = layoutPattern
-        this.boardname = chordboardname;
-        this.$store.commit('toggle', chordboardname);
-        this.$store.commit('toggleLayout', layoutPattern);
-        this.keyboard.setOptions({
-          layout: {
-            [chordboardname]: layoutPattern
-          },
-          layoutName: chordboardname,
-          preventMouseDownDefault: true,
-        });
-        // add click event to chordboard
-        if (this.boardname != 'qwerty')
-        {
-          document.getElementById("simple-keyboard-wrapper").querySelector("div").addEventListener("click", event => {
-          window.console.log('event: ', event.target.innerText);
-          this.interpretChord(event.target.innerText);
-          })
-        }
-      // this.callChord(event.target.value);
-    });
-    },
-    editChord() {
-      window.console.log('Editing chordboard: ', this.keyboard.getOptions().layoutName)
-    },
-    // playChord(e) {
-    //   const note = e.key.toLowerCase();
-    //   this.charToNote.forEach((char) => {
-    //     if (char.hasOwnProperty(note)) {
-    //       const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
-    //       synth.triggerAttackRelease(char[note], "8n");  
-    //       window.console.log("successfully played chord ", char.chord);
-    //       this.chordProgression.push(char.chord);
-    //       window.console.log(this.chordProgression)
-    //     }
-    //   })
-    // },
-
-    callChord(e) {
-      const letter = e.key.toLowerCase();
-      db.collection('chordboards').doc(this.boardname).get()
-      .then(doc => {
-        let result = doc.data();
-        window.console.log('result = ', result);
-        result.keys.forEach(i => {
-          if (i.key === letter) {
-            this.interpretChord(i.chord);
-            this.$emit('beat', i.chord)
-          }
-        })
-      })
-
-    },
 
     interpretChord(input) {
       let root = '';
@@ -284,7 +153,7 @@ export default {
     }
 
     // remove third in suspended
-    if (quality && quality.includes('sus')) {
+    if (quality.includes('sus')) {
       chord.push(notes[rootIndex] + '4', notes[getIndex(9, rootIndex)] + '4', notes[fifth] + '4')
     } else {
     // add notes to chord
@@ -321,12 +190,14 @@ export default {
   this.playChord(chord)
 
 },
-playChord(chord) {
-    const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
-    synth.triggerAttackRelease(chord, "8n");
-    window.console.log("successfully played chord ", chord);
+    playChord(chord) {
+          const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
+          synth.triggerAttackRelease(chord, "8n");  
+          window.console.log("successfully played chord ", chord);
     },
 
+},
+
+
   }
-}
 </script>

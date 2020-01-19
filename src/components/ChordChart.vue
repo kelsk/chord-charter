@@ -1,46 +1,44 @@
 <template>
-  <div>
+  <div class="outer__chart">
     <!-- <link href="https://fonts.googleapis.com/css?family=Hammersmith+One|Lalezar|Nanum+Pen+Script|Oxygen|Patrick+Hand|Paytone+One|Rajdhani|Titillium+Web|Volkhov|Yanone+Kaffeesatz&display=swap" rel="stylesheet"> -->
-    <div v-if="chart.error">
-      ERRORRRRR
-    </div>
+
     <div v-if="chart.error === true">
-      {{$route.params.title}} doesn't exist. 
       <router-link :to="`/newchart`">
         Create new chart
       </router-link>
     </div>
-    <div v-if="chart.details" id="chart" class="chart">
-    <nav class="chart__options">
-      <span>
+
+      <nav class="chart__options">
+      <span class="chart__doc-id">
         {{$route.params.title}}
       </span>
       <span>
-        Measures per line:
-        <input type="number" placeholder="8" max="10" min="1" v-on:change="updateMeasuresPerLine($event)" />
-      </span>
-      <span>
-        Chord Font:
-        <select v-model="chart.style.font" @change="updateFont(chart.style.font)">
-          <option v-bind:key="font.id" v-for="font in fonts" v-bind:value="font">{{font}}
-          </option>
-        </select>
-      </span>
-      <span>
-        Other Options
-      </span>
-      <span>
-        Edit: 
+        <PlayBack v-bind:chordProgression="$store.state.currentChart.content.beats"></PlayBack>
         <router-link :to="$route.params.title + `/edit`">
+        <button>
           Edit Chart
+        </button>
         </router-link>
-        Delete:
         <button v-on:click="deleteChart">
         Delete Chart
         </button>
       </span>
 
+      <span>
+        Measures per line:
+        <input type="number" v-bind:placeholder="mpl" max="12" min="1" v-on:change="updateMeasuresPerLine($event)" />
+      </span>
+      <span>
+        Chord Font:
+        <select v-model="chart.style.font" v-on:change="updateFont(chart.style.font)">
+          <option v-bind:key="font.id" v-for="font in fonts" v-bind:value="font">{{font}}
+          </option>
+        </select>
+      </span>
     </nav>
+
+
+    <div v-if="chart.details" id="chart" class="chart" v-bind:style="`font-family: ${font}`">
     <header class="chart__header">
       <span class="chart__title">
         {{chart.details.title}}
@@ -63,7 +61,7 @@
       </span>
     </section>
 
-    <section id="chart-body" class="chart__body grid__col-4">
+    <section id="chart-body" v-bind:class="`chart__body grid__col-${mpl}`">
       <div
       v-bind:key="measure.id"
       v-for="measure in measures">
@@ -89,11 +87,15 @@
 
 <script>
 import { db } from '../main.js'
+import PlayBack from './PlayBack.vue'
 
 export default {
   name: 'ChordChart',
   props: {
     fonts: Array
+  },
+  components: {
+    PlayBack,
   },
   updated() {
     // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
@@ -110,48 +112,12 @@ export default {
   },
   data() {
     return {
+      mpl: 4,
       measures: [],
+      font: 'Alata',
       chartId: {},
       chart: {
         error: false
-        // style: {
-        //   font: 'Alata',
-        //   measuresPerLine: 8,
-        // },
-        // details: {
-        //   title: "Happy Birthday",
-        //   author: 'Kelsey',
-        //   tempo: 108,
-        //   keySig: 'C',
-        //   timeSig: {
-        //     upper: 3,
-        //     lower: 4
-        //   }
-        // },
-        // content: {
-        // beats: [
-        //   '', '', 'G', 
-        //   'C', 'C', 'C',
-        //   'G', 'G', 'G', 
-        //   'G', 'G', 'G', 
-        //   'C', 'C', 'C', 
-        //   'C7', 'C7', 'C7', 
-        //   'F', 'F', 'F#dim7',
-        //   'C/G', 'C/G', 'G7', 
-        //   'C', 'C', 'C'
-        // ],
-        // lyrics: [
-        //   'happy',
-        //   'birth day to',
-        //   'you, happy',
-        //   'birth day to',
-        //   'you, happy',
-        //   'birth day dear',
-        //   'SOMEONE, happy',
-        //   'birth day to',
-        //   'you'
-        // ]
-        // }
       }
     }
   },
@@ -160,10 +126,14 @@ export default {
     db.collection('chordcharts').doc(route).get()
     .then(response => {
       const chart = response.data();
+      window.console.log('response: ', response);
+      window.console.log(response.data());
       if (!chart) {
         this.chart.error = true
       } else {
         this.chart = chart;
+        this.font = chart.style.font;
+        this.mpl = chart.style.measuresPerLine;
         this.populateMeasures();
         this.$store.commit('loadChart', chart);
       }
@@ -173,30 +143,33 @@ export default {
       window.console.log('Error: ', error)
     })
   },
-  
   methods: {
     deleteChart() {
       const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$route.params.title}?`);
       if (deleteDoc === true) {
+      this.$store.commit('removeTitle', this.$route.params.title);
       db.collection('chordcharts').doc(this.$route.params.title).delete();
       this.$router.push('charts');
       }
     },
-    updateFont(font) {
-      document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
+    updateFont(newFont) {
       db.collection('chordcharts').doc(this.$route.params.title).set({
         style: {
-          font: font
+          font: newFont
         }
       }, {merge: true});
-      window.console.log("ran updateFont with font ", font);
+      window.console.log("ran updateFont with font ", newFont);
     },
     updateMeasuresPerLine(event) {
-      let mpl = this.chart.style.measuresPerLine;
-      let etv = event.target.value
-      let chart = document.getElementById('chart-body');
-      chart.classList.remove('grid__col-' + mpl.toString());
-      chart.classList.add('grid__col-' + etv.toString());
+      let etv = event.target.value;
+      const chart = document.getElementById('chart-body');
+      for (let i = 1; i <= 12; i++){
+        if (i.toString() === etv) {
+          chart.classList.add(`grid__col-${i}`)
+        } else {
+        chart.classList.remove('grid__col-'+ `${i}`);
+        }
+      }
       this.chart.style.measuresPerLine = etv;
     },
 
@@ -247,81 +220,12 @@ export default {
             currentBeat = measure.beats[i]
           }
         }
-      }) 
+      });
     }
   }
 }
 </script>
 
 <style>
-.chart {
-  text-align: center;
-  font-size: 2rem;
-}
-.chart__options {
-  height: 3rem;
-  font-size: 1rem;
-  background-color: rgb(236, 255, 207);
-}
-.chart__header {
-  height: 3rem;
-}
-.chart__body {
-  display: grid;
-  grid-row-gap: 1rem;
-  font-size: 2rem;
-}
-.grid__col-1 {
-  grid-template-columns: 1fr;
-}
-.grid__col-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-.grid__col-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-.grid__col-4 {
-  grid-template-columns: repeat(4, 1fr);
-}
-.grid__col-5 {
-  grid-template-columns: repeat(5, 1fr);
-}
-.grid__col-6 {
-  grid-template-columns: repeat(6, 1fr);
-}
-.grid__col-7 {
-  grid-template-columns: repeat(7, 1fr);
-}
-.grid__col-8 {
-  grid-template-columns: repeat(8, 1fr);
-}
-.chart__details {
-  font-size: 1rem;
-}
-.chart__measure-beats, .chart__measure-lyrics {
-  border-left: 1px solid black;  
-  text-align: center;
-  display: flex;
-  justify-content: space-around;
-  margin: 0;
-}
-.chart__measure-beats {
-  padding: 0px 20px 0px 20px;
-}
-.chart__measure-lyrics {
-  padding: 0px 20px 0px 20px;
-}
-.lyric {
-  font-size: 1rem;
-  border: none;
-  padding: 0;
-  width: 100%;
-}
-.lyric::placeholder {
-  color: black;
-  text-align: center;
-}
-.lyric:focus::placeholder {
-  color: grey;
-}
+
 </style>

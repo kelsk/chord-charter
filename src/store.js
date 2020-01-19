@@ -6,29 +6,44 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     keyboard: {},
+    chartTitles: [],
     currentChart: {
       // set with defaults
       details: {
         title: 'untitled',
+        author: 'author',
         timeSig: {
           upper: 4,
           lower: 4
         }
       },
       content: {
+        bars: [],
         beats: [],
         lyrics: [],
       },
       style: {
         measuresPerLine: 8,
-        font: "'Alata'"
+        font: 'Alata'
       },
     },
     currentChordBoard: 'default',
-    currentChordBoardLayout: [' h e l l o   w o r l d '],
-    message: 'store state'
+    currentChordBoardLayout: [' c h o r d   b o a r d '],
+    currentUser: {
+      loggedIn: false,
+      data: null
+    },
+  },
+  getters: {
+    currentUser(state) {
+      return state.currentUser
+    }
   },
   mutations: {
+    addChartTitles(state, titles) {
+      state.chartTitles = titles;
+      window.console.log('successfully stored chart titles: ', titles)
+    },
     toggle(state, n) {
       state.currentChordBoard = n
       window.console.log('successfully stored state: ', n)
@@ -38,7 +53,12 @@ const store = new Vuex.Store({
       window.console.log('successfully stored layout state: ', n)
     },
     updateChordBoard(state, n) {
-      state.keyboard = n;
+      if (n[0] === 'name') {
+        state.currentChordBoard = n[1]
+      } else {
+        state.currentChordBoard = n[0];
+        state.keyboard = n[1];
+      }
       window.console.log('successfully updated chordboard state: ', n)
     },
     editChart(state, updates) {
@@ -48,6 +68,35 @@ const store = new Vuex.Store({
     loadChart(state, chart) {
       state.currentChart = chart;
       window.console.log('successfully loaded chart state: ', chart)
+    },
+    setLoggedIn(state, value) {
+      state.currentUser.loggedIn = value;
+    },
+    setCurrentUserData(state, data) {
+      state.currentUser.data = data;
+    },
+    addTitle(state, title) {
+      state.chartTitles.push(title);
+      window.console.log('successfully added title to state: ', title)
+    },
+    removeTitle(state, title) {
+      state.chartTitles.splice(state.chartTitles.indexOf(title), 1);
+      window.console.log('successfully removed title from state: ', title)
+    }
+  },
+  // below methods from https://blog.logrocket.com/vue-firebase-authentication/
+  // retrieved on 1/18/20
+  actions: {
+    fetchUser({ commit }, user) {
+      commit('setLoggedIn', user !== null);
+      if (user) {
+        commit('setCurrentUserData', {
+          displayName: user.displayName,
+          email: user.email
+        });
+      } else {
+        commit('setCurrentUserData', null);
+      }
     }
   }
 })
