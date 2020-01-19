@@ -7,11 +7,6 @@
   </div>
   </div>
   
-  <!-- <EditKeyboard
-  v-bind:keyboard="this.keyboard"
-  v-bind:keys="this.keys">
-  </EditKeyboard> -->
-
 </template>
 
 <script>
@@ -20,16 +15,13 @@ import Keyboard from 'simple-keyboard'
 import 'simple-keyboard/build/css/index.css'
 import { db } from '../main.js'
 import store from '../store.js'
-// import EditKeyboard from './EditChordBoardForm'
 
 export default {
   name: 'ChordBoard',
   store,
-  components: {
-    // EditKeyboard
-  },
   props: {
     username: String,
+    chordboards: Array,
   },
   
   data() {
@@ -40,10 +32,6 @@ export default {
       // chordboards should populate
       // maybe using state
       // from the user's total chordboards
-      chordboards: [
-        {key: 'default'},
-        {key: 'qwerty'}
-      ],
       keys: [],
       keyboard: null,
       boardname: this.$store.state.currentChordBoard,
@@ -158,10 +146,6 @@ export default {
     //     }
     //   })
     // },
-    toggleQwertyKeyboard(boardname) {
-      this.loadChordBoard(boardname);
-      this.stopRecording();
-    },
 
     callChord(e) {
       const letter = e.key.toLowerCase();
@@ -339,7 +323,7 @@ export default {
 },
 playChord(chord) {
     const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
-    synth.triggerAttackRelease(chord, "8n");  
+    synth.triggerAttackRelease(chord, "8n");
     window.console.log("successfully played chord ", chord);
     },
 

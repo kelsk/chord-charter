@@ -5,6 +5,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import router from './router.js';
+import store from './store';
 // import Keyboard from 'simple-keyboard';
 // import 'simple-keyboard/build/css/index.css'
 
@@ -21,6 +22,13 @@ const firebaseConfig = {
   measurementId: "G-HJR8NWKFX1"
 };
 firebase.initializeApp(firebaseConfig)
+firebase.auth().onAuthStateChanged(user =>  {
+  if (user) {
+    store.dispatch('fetchUser', user)
+  } else {
+    window.console.log('no user is signed in.')
+  }
+});
 
 Vue.use(firestorePlugin)
 export const db = firebase.firestore()

@@ -161,13 +161,15 @@ export default {
       window.console.log("ran updateFont with font ", newFont);
     },
     updateMeasuresPerLine(event) {
-      let mpl = this.chart.style.measuresPerLine;
       let etv = event.target.value;
-      window.console.log('mpl: ', mpl);
-      window.console.log('etv: ', etv);
       const chart = document.getElementById('chart-body');
-      chart.classList.remove('grid__col-' + /\d/);
-      chart.classList.add('grid__col-' + etv.toString());
+      for (let i = 1; i <= 12; i++){
+        if (i.toString() === etv) {
+          chart.classList.add(`grid__col-${i}`)
+        } else {
+        chart.classList.remove('grid__col-'+ `${i}`);
+        }
+      }
       this.chart.style.measuresPerLine = etv;
     },
 

@@ -29,7 +29,15 @@ const store = new Vuex.Store({
     },
     currentChordBoard: 'default',
     currentChordBoardLayout: [' c h o r d   b o a r d '],
-    currentUser: undefined,
+    currentUser: {
+      loggedIn: false,
+      data: null
+    },
+  },
+  getters: {
+    currentUser(state) {
+      return state.currentUser
+    }
   },
   mutations: {
     addChartTitles(state, titles) {
@@ -48,6 +56,7 @@ const store = new Vuex.Store({
       if (n[0] === 'name') {
         state.currentChordBoard = n[1]
       } else {
+        state.currentChordBoard = n[0];
         state.keyboard = n[1];
       }
       window.console.log('successfully updated chordboard state: ', n)
@@ -60,9 +69,11 @@ const store = new Vuex.Store({
       state.currentChart = chart;
       window.console.log('successfully loaded chart state: ', chart)
     },
-    setCurrentUser(state, user) {
-      state.currentUser = user;
-      window.console.log('successfully added user to state: ', user);
+    setLoggedIn(state, value) {
+      state.currentUser.loggedIn = value;
+    },
+    setCurrentUserData(state, data) {
+      state.currentUser.data = data;
     },
     addTitle(state, title) {
       state.chartTitles.push(title);
@@ -71,6 +82,21 @@ const store = new Vuex.Store({
     removeTitle(state, title) {
       state.chartTitles.splice(state.chartTitles.indexOf(title), 1);
       window.console.log('successfully removed title from state: ', title)
+    }
+  },
+  // below methods from https://blog.logrocket.com/vue-firebase-authentication/
+  // retrieved on 1/18/20
+  actions: {
+    fetchUser({ commit }, user) {
+      commit('setLoggedIn', user !== null);
+      if (user) {
+        commit('setCurrentUserData', {
+          displayName: user.displayName,
+          email: user.email
+        });
+      } else {
+        commit('setCurrentUserData', null);
+      }
     }
   }
 })

@@ -1,7 +1,7 @@
 <template>
   <div id="editkeyboard">
     Edit ChordBoard: 
-    <input class="chordboard__name" placeholder="New ChordBoard" v-on:change="updateChordBoardName($event.target.value)">
+    <input class="chordboard__name" v-bind:placeholder="chordBoardToEdit" v-on:change="updateChordBoardName($event.target.value)">
     <button v-on:click="saveChordBoard">
       Save {{this.chordBoardName}}
       </button>
@@ -96,10 +96,24 @@ data() {
   }
 },
 mounted() {
-  window.console.log('EditChordBoardForm mounted')
+  window.console.log('EditChordBoardForm mounted');
+  window.console.log('ChordBoard name: ', this.chordBoardName);
+  window.console.log('ChordBoard to edit: ', this.chordBoardToEdit);
   window.console.log('chords: ', this.chords);
   this.keys.forEach((el, i) => { this.keysWithIndex.push({id: i, key: el})});
-  this.updateChordBoardName(this.chordBoardToEdit);  
+  this.updateChordBoardName(this.chordBoardToEdit);
+  db.collection('chordboards').doc(`${this.chordBoardToEdit}`).get().then(
+    response => {
+      let data = response.data();
+      if (data.keys) {
+        this.chords = data.keys;
+        window.console.log('chords updated with keys');
+        data.keys.forEach(el => {
+          this.keys[this.keys.indexOf(el.key)] = el.chord;
+        })
+      }
+    }
+  );
 },
 methods: {
   addChordAtIndex(value, i) {
@@ -113,6 +127,7 @@ methods: {
       keys: chords
     }, {merge: true});
     window.console.log('ChordBoard saved: ', this.chordBoardName);
+    this.$store.commit('updateChordBoard', [this.chordBoardName, chords])
   },
   updateChordBoardName(name) {
     window.console.log("ChordBoard name: ", name);

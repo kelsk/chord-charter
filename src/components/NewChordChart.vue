@@ -25,7 +25,7 @@
         <input type="number" 
         max="10" 
         min="1" 
-        placeholder="8" 
+        v-bind:placeholder="mpl" 
         v-bind:value="chart.style.measuresPerLine" 
         v-on:change="addChartState($event, ['style', 'measuresPerLine']); updateMeasuresPerLine($event)" />
       </span>
@@ -208,6 +208,7 @@ export default {
       rawLyrics: '',
       measureStyle: {},
       currentFont: '',
+      mpl: 8,
       chart: {
         style: {
           font: '',
@@ -377,6 +378,7 @@ export default {
         let currentChart = this.$store.state.currentChart;
         window.console.log('current chart: ', currentChart);
         this.title = currentChart.details.title;
+        this.mpl = currentChart.style.measuresPerLine;
         this.beats = currentChart.content.beats;
         window.console.log('beats: ', this.beats);
         this.bars = currentChart.content.bars;
@@ -461,14 +463,15 @@ export default {
       window.console.log(document.getElementById('chart').fontFamily);
     },
     updateMeasuresPerLine(event) {
-      let mpl = this.chart.style.measuresPerLine;
-      let etv = event.target.value
-      let chart = document.getElementById('chart-body');
-      window.console.log('measures per line: ', mpl);
-      window.console.log('event target value: ', etv);
-      window.console.log('classlist: ', chart.classList);
-      chart.classList.remove('grid__col-' + /\d/);
-      chart.classList.add('grid__col-' + etv.toString());
+      let etv = event.target.value;
+      const chart = document.getElementById('chart-body');
+      for (let i = 1; i <= 12; i++){
+        if (i.toString() === etv) {
+          chart.classList.add(`grid__col-${i}`)
+        } else {
+        chart.classList.remove('grid__col-'+ `${i}`);
+        }
+      }
       this.chart.style.measuresPerLine = etv;
     },
     viewLyricsInput() {
