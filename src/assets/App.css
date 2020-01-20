@@ -40,12 +40,13 @@ color: white
 
 .chart__container {
   display: grid;
-  grid-template-columns: 12rem 1fr;
+  grid-template-columns: auto 1fr;
   width: 100%;
 }
 
 .chartlibrary {
   overflow: scroll;
+  max-width: 12rem;
 }
 .chartlibrary::-webkit-scrollbar {
   display: none;
@@ -64,7 +65,30 @@ color: white
   color: white;
 }
 
+.caret__container {
+  height: 34px;
+  width: 20px;
+  float: right;
+  padding-top: 5px;
+  background-color: rgb(255, 255, 255);
+}
+.caret__in {
+  width: 0; 
+  height: 0; 
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 15px solid rgb(160, 160, 160);
+  display: inline-block;
+}
 
+.caret__out {
+  width: 0; 
+  height: 0; 
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-left: 15px solid rgb(160, 160, 160);
+  display: inline-block;
+}
 
 
 
@@ -139,6 +163,10 @@ background-color: #0a0d0a}
   text-align: center;
 }
 
+.chart__details {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
 .chart__details-tempo, .chart__details-key, .chart__details-time {
   font-size: .8rem;
 }
@@ -222,7 +250,10 @@ select:hover {
 .chart__body {
   display: grid;
   grid-row-gap: 1rem;
+  grid-column-gap: 0;
   font-size: 2rem;
+  width: 100%;
+  overflow: scroll;
 }
 .grid__col-1 {
   grid-template-columns: 1fr;
@@ -260,11 +291,14 @@ select:hover {
 .grid__col-12 {
   grid-template-columns: repeat(12, 1fr);
 }
-.chart__details {
-  font-size: 1rem;
+
+
+.chart__measure {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
 }
-
-
 .chart__measure-bar {
   display: inline-block;
   font-size: .8rem;
@@ -272,22 +306,108 @@ select:hover {
   text-align: left;
   visibility: hidden;
 }
+.barbtn__container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  overflow: hidden;
+  max-height: 20px;
+}
+.barbtn__container .barbtn:nth-child(2n) {
+  text-align: right;
+}
 .chart__measure:hover .chart__measure-bar {
   visibility: visible;
 }
 .chart__measure-beats, .chart__measure-lyrics {
-  border-left: 1px solid black;  
   text-align: center;
   display: flex;
   justify-content: space-around;
   margin: 0;
+  overflow: hidden;
+
 }
 .chart__measure-beats {
-  padding: 0px 20px 0px 20px;
+  padding: 0px 10px 0px 10px;
 }
 .chart__measure-lyrics {
-  padding: 0px 20px 0px 20px;
+  padding: 0px 10px 0px 10px;
 }
+
+
+
+.chordboard__mini {
+  height: 100px;
+  width: 100%;
+  float: right;
+  text-align: center;
+  padding: 0;
+  margin-top: 4rem;
+}
+.chordboard__mini .simple-keyboard.hg-theme-default .hg-button {
+  height: 25px;
+}
+.chordboard__mini .chordboard__main{
+  height: 80%;
+  display: inline-block;
+  width: 50%;
+  font-size: .5rem;
+  padding: 0;
+  margin: 0;
+}
+.chordboard__mini .hg-button {
+  height: auto;
+}
+
+
+/* REPEATS */
+.bar {
+  height: 60px;
+  display: inline-block;
+  padding: 0;
+  margin-right: 1px;
+}
+.bar-start {
+  float: left;
+  border-left: 2px solid black;
+}
+.bar-end {
+  float: right;
+}
+.start-repeat {
+  border-left: 5px solid black;
+}
+.end-repeat {
+  border-right: 3px solid black;
+  margin-right: 0px;
+}
+.start-line {
+  margin-left: 2px;
+  border-left: 2px solid black;
+}
+.end-line {
+  margin-right: 2px;
+  border-right: 2px solid black;
+}
+.dots__container {
+  border: none;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.dot {
+  height: 0px;
+  width: 0px;
+  border: 6px solid black;
+  border-radius: 6px;
+  margin: 0;
+  margin-top: 10px;
+  padding: 0;
+}
+.measure__content {
+  display: inline-block;
+  width: 100%;
+}
+
 
 
 

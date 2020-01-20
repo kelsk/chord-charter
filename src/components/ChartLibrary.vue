@@ -1,9 +1,20 @@
 <template>
   <div v-if="$store.state.currentUser">
+  <div>
+    <div class="caret__container">
+      <div v-if="chartNavHidden" class="caret__out" v-on:click="toggleChartNav">
+      </div>
+      <div v-else class="caret__in" v-on:click="toggleChartNav">
+      </div>
+    </div>
+    <div v-if="chartNavHidden">
+    </div>
+    <div v-else class="chartlibrary">
+    <p>
     <router-link :to="'/charts'">
     Chord Chart Library
     </router-link>
-  <div class="chartlibrary">
+    </p>
     <p>
       <router-link :to="`charts/new`">
       Add New Chart
@@ -14,6 +25,7 @@
       {{chart.title}}
       </router-link>
     </p>
+  </div>
   </div>
   </div>
 </template>
@@ -27,7 +39,8 @@ export default {
   },
   data() {
     return {
-      chartTitles: []
+      chartTitles: [],
+      chartNavHidden: false,
     }
   },
   created() {
@@ -44,7 +57,6 @@ export default {
           this.chartTitles.push(chart)
         })
       })
-    window.console.log("chartTitles = ", this.chartTitles)
     this.$store.commit('addChartTitles', this.chartTitles)
     }
   )
@@ -70,6 +82,9 @@ export default {
       },
       };
       this.$store.commit('loadChart', currentChart)
+    },
+    toggleChartNav() {
+      this.chartNavHidden = !this.chartNavHidden
     }
   }
 }

@@ -135,7 +135,11 @@ export default {
         {
           document.getElementById("simple-keyboard-wrapper").querySelector("div").addEventListener("click", event => {
           window.console.log('event: ', event.target.innerText);
-          this.interpretChord(event.target.innerText);
+          if (this.chordReference[event.target.innerText]) {
+            this.playChord(this.chordReference[event.target.innerText])
+          } else {
+            this.interpretChord(event.target.innerText);
+          }
           })
         }
       // this.callChord(event.target.value);

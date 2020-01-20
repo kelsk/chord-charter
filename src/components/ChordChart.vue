@@ -66,9 +66,22 @@
     </section>
 
     <section id="chart-body" v-bind:class="`chart__body grid__col-${mpl}`">
-      <div
+      <div class="chart__measure"
       v-bind:key="measure.id"
       v-for="measure in measures">
+      <div v-if="!chart.content.bars[measures.indexOf(measure)].start.repeat" class="bar bar-start">
+      </div>
+      <div v-else class="bar bar-start start-repeat">
+        <div class="bar bar-start start-line">
+        </div>
+        <div class="bar bar-start dots__container">
+          <p class="dot">
+          </p>
+          <p class="dot">
+          </p>
+        </div>
+      </div>
+      <div class="measure__content">
         <p class="chart__measure-beats">
         <span class="beat"
         v-bind:key="beat.id"
@@ -82,6 +95,9 @@
           type="text"
           v-for="lyric in measure.lyrics" v-bind:placeholder="lyric">
         </p>
+      </div>
+      <div class="bar bar-end">
+      </div>
       </div>
     </section>
 
@@ -107,17 +123,9 @@ export default {
     ChordBoard,
   },
   updated() {
-    // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
-    // let inputs = document.getElementsByTagName('input')
-    // inputs.forEach(el => {
-    //   let elSize = el.getAttribute('placeholder').length;
-    //   let beatSize = this.chart.measuresPerLine;
-    //   el.setAttribute('size', el.getAttribute('placeholder').length + 1);
-    // })
-          document.getElementsByClassName('chart__measure-lyrics').forEach(measure => {
-            measure.classList.add('grid__col-' + this.chart.details.timeSig.upper.toString())
-          })
-
+    document.getElementsByClassName('chart__measure-lyrics').forEach(measure => {
+      measure.classList.add('grid__col-' + this.chart.details.timeSig.upper.toString())
+    })
   },
   data() {
     return {
@@ -183,7 +191,6 @@ export default {
       this.chart.style.measuresPerLine = etv;
     },
 
-  // this should be a cloud function
     populateMeasures() {
       const beatsPerMeasure = this.chart.details.timeSig.upper;
       window.console.log('in PopulateMeasures, bpm is ', beatsPerMeasure)
@@ -239,24 +246,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.chordboard__mini {
-  height: 50%;
-  width: 50%;
-  float: right;
-padding: 0;
-  margin-top: 4rem;
-}
-.chordboard__mini * * {
-  height: 80%;
-  width: 80%;
-  font-size: .5rem;
-  padding: 0;
-  margin: 0;
-}
-.chordboard__mini .hg-button {
-  height: auto;
-}
-
-</style>

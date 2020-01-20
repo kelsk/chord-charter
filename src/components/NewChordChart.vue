@@ -146,21 +146,49 @@
         v-bind:key="measure.id"
         v-for="measure in measures"
         >
-        <p class="chart__measure-bar measure-start" v-on:click="editBar(measures.indexOf(measure), 'start')">
-          ~
-          <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start'] && bars[measures.indexOf(measure)]['start']['repeat']">
-            !
-          </span>
-        </p>
+        <div v-if="chart.content && chart.content.bars[measures.indexOf(measure)] && chart.content.bars[measures.indexOf(measure)].start.repeat" class="bar bar-start start-repeat">
+          <div class="bar bar-start start-line">
+          </div>
+          <div class="bar bar-start dots__container">
+            <p class="dot">
+            </p>
+            <p class="dot">
+            </p>
+          </div>
+        </div>
+        <div v-else class="bar bar-start">
+        </div>
+
+
+        <div class="measure__content">
+          <div class="barbtn__container">
+          <p class="chart__measure-bar barbtn" v-on:click="editBar(measures.indexOf(measure), 'start')">
+            <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start']['repeat']">
+              remove repeat
+            </span>
+            <span v-else-if="bars && bars[measures.indexOf(measure)]">
+              start repeat
+            </span>
+          </p>
+
+          <p class="chart__measure-bar barbtn" v-on:click="editBar(measures.indexOf(measure), 'end')">
+            <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['end']['repeat']">
+              remove repeat
+            </span>
+            <span v-else-if="bars && bars[measures.indexOf(measure)]">
+              end repeat
+            </span>
+          </p>
+          </div>
 
           <p class="chart__measure-beats">
-
-          <span class="beat" 
-            v-bind:key="beat.id"
-            v-for="beat in measure">
-            <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
-          </span>
+            <span class="beat" 
+              v-bind:key="beat.id"
+              v-for="beat in measure">
+              <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
+            </span>
           </p>
+
           <p class="chart__measure-lyrics">
             <span v-if="lyrics">
               {{lyrics[measures.indexOf(measure)]}}
@@ -168,6 +196,21 @@
             <input v-else class="lyric"
             type="text" placeholder="lyrics">
           </p>
+
+        </div>
+
+        <div v-if="chart.content && chart.content.bars[measures.indexOf(measure)] && chart.content.bars[measures.indexOf(measure)].end.repeat" class="bar bar-end end-repeat">
+          <div class="bar bar-end end-line">
+          </div>
+          <div class="bar bar-end dots__container">
+            <p class="dot">
+            </p>
+            <p class="dot">
+            </p>
+          </div>
+        </div>
+        <div v-else class="bar bar-end">
+        </div>
         </div>
       </section>
       </div>
@@ -263,7 +306,6 @@ export default {
     });
   },
   mounted(){
-    window.console.log('PARAMS: ', this.$route.params)
     if(!this.$route.params.title) {
       this.clearState();
     } else {
@@ -311,7 +353,7 @@ export default {
       window.console.log(lines)
     },
     editBar(index, position) {
-      this.bars[index][position]['repeat'] = true;
+      this.bars[index][position]['repeat'] = !this.bars[index][position]['repeat'];
       this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars})
       window.console.log(index);
       window.console.log(position);
@@ -358,20 +400,16 @@ export default {
       this.loadChart();
     },
     editBeat(chord, id) {
-      window.console.log('editing beat with id ', id);
       this.measures.forEach(measure => {
         measure.forEach(beat => {
           window.console.log('beat id: ', beat.id)
           if (beat.id === id) {
             beat.chord = chord
-            window.console.log('editing measure ', measure)
-            window.console.log('editing beat ', beat)
           }
         })
       })
       this.beats[id] = chord;
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats}, {merge: false});
-      window.console.log('new beats: ', this.$store.state.currentChart.content.beats[0]);
     },
     loadChart() {
       if (this.$store.state.currentChart) {
@@ -395,14 +433,16 @@ export default {
       }
     },
     playChord(e) {
-      window.console.log('playChord: this.beats = ', this.beats);
       if (e.code === "Space") {
-        window.console.log('its a space!!!!');
         this.recordBeat(this.rest);
         return
       }
+      if (e.code === 'BracketLeft') {
+        this.editBar(this.bars.length -1, 'start')
+      } else if (e.code === 'BracketRight') {
+        this.editBar(this.bars.length -1, 'end')
+      }
       if (e.code === "Backspace") {
-        window.console.log('its a deleeeeete!!!!');
         this.removeBeat(this.beats.length - 1)
       }
       this.$refs.chordboard.callChord(e)
@@ -413,11 +453,13 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
     },
     removeBeat(index) {
-      window.console.log('removing beat at index ', index);
       this.measures.forEach(measure => {
         measure.forEach(beat => {
           if (beat.id === index) {
-            measure.splice(measure.indexOf(beat), 1)
+            measure.splice(measure.indexOf(beat), 1);
+            if (measure.length === 0) {
+              this.removeMeasure(this.measures.indexOf(measure));
+            }
           }
         })
       })
@@ -425,20 +467,22 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
       // this.measures[-1].splice(-1, 1)
     },
+    removeMeasure(index) {
+      this.measures.splice(index, 1);
+      this.bars.splice(index, 1);
+    },
     saveChart() {
       const newTitle = this.$store.state.currentChart.details.title;
       if (this.$store.state.chartTitles.includes(newTitle)) {
-        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nOverwrite existing chart ${newTitle}?`);
+        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nUpdate existing chart ${newTitle}?`);
         if (!titleConfirmation) return;
       }
-      window.console.log('successfully saved chart');
       const chart = this.$store.state.currentChart;
       window.console.log(chart);
       this.$store.commit('addTitle', this.$route.params.title);
       db.collection('chordcharts').doc(chart.details.title).set(
         {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
       );
-      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
     },
     startRecording() {
       this.recording = true;
@@ -448,8 +492,6 @@ export default {
     },
     updateFont(font) {
       document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
-      window.console.log("ran updateFont with font ", font);
-      window.console.log(document.getElementById('chart').fontFamily);
     },
     updateMeasuresPerLine(event) {
       let etv = event.target.value;

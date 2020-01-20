@@ -1,9 +1,7 @@
 <template>
-  <div>
     <button v-on:click="playSong">
-      Play
+      Play Song
     </button>
-  </div>
 </template>
 
 <script>
