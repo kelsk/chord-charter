@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import ChordBoards from './views/ChordBoardView.vue';
 import ChordLibrary from './components/ChordLibrary.vue';
-import HelloWorld from './components/HelloWorld.vue';
 import Charts from './views/ChartView.vue';
 // import ChartLibrary from './components/ChartLibrary.vue';
 import ChordChart from './components/ChordChart.vue';
@@ -19,14 +18,6 @@ const routes = [
     path: '/',
     name: 'login',
     component: Login
-  },
-  {
-    path: '/hello',
-    name: 'hello',
-    component: HelloWorld,
-    meta: {
-      requiresAuth: true
-    },
   },
   {
     path: '/chordboards',

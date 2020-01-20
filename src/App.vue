@@ -4,7 +4,6 @@
     <nav class="app__nav" v-if="$store.state.currentUser.data">
       <router-link to="/charts">Charts</router-link>
       <router-link to="/chordboards">Chordboards</router-link>
-      <router-link to="/hello">Vue Links</router-link>
       <div class="user" alt="logout" title="logout" v-on:click="logoutUser">
         <a id="username">
           Logout {{this.$store.state.currentUser.data.displayName}}

@@ -20,15 +20,22 @@
         </button>
       </form>
     </div>
-    <div v-else>
+    <div v-else class="chart__container">
+      <ChartLibrary>
+      </ChartLibrary> 
       Welcome to Chord Charter, {{this.$store.state.currentUser.data.displayName}}
     </div>
   </div>
 </template>
 <script>
 import firebase from 'firebase'
+import ChartLibrary from '../components/ChartLibrary'
+
 export default {
   name: 'Login',
+  components: {
+    ChartLibrary
+  },
   data() {
     return {
       form: {

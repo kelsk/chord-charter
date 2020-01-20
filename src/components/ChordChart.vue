@@ -14,8 +14,9 @@
       </span>
       <span>
         <PlayBack 
-        v-bind:chordReference="chordReference"
-        v-bind:chordProgression="$store.state.currentChart.content.beats" v-bind:bpm="$store.state.currentChart.details.tempo">
+          v-bind:chordReference="chordReference"
+          v-bind:chordProgression="$store.state.currentChart.content.beats"
+          v-bind:bpm="$store.state.currentChart.details.tempo">
         </PlayBack>
         <router-link :to="$route.params.title + `/edit`">
         <button>
