@@ -59,7 +59,7 @@
     </nav>
     </div>
     
-    <div id="chart" class="chart" v-bind:style="`font-family: ${chart.style.font}`">
+    <div id="chart" class="chart" v-bind:style="`font-family: '${currentFont}'`">
       <header class="chart__header">
         <span class="chart__title">
           <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
@@ -250,7 +250,7 @@ export default {
       editingBeat: false,
       rawLyrics: '',
       measureStyle: {},
-      currentFont: '',
+      currentFont: 'Arial',
       mpl: 8,
       chart: {
         style: {
@@ -328,7 +328,7 @@ export default {
       this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
-        window.console.log('bars: ', this.bars);
+      } else if (this.measures[i].length === 1) {
         let newBar = {
           end: {
           repeat: false,
@@ -340,8 +340,7 @@ export default {
           }
         };
         this.bars.push(newBar);
-      this.addBars();
-
+        this.addBars();
       }
     },
     addLyrics(event) {
@@ -479,10 +478,10 @@ export default {
       }
       const chart = this.$store.state.currentChart;
       window.console.log(chart);
-      this.$store.commit('addTitle', this.$route.params.title);
       db.collection('chordcharts').doc(chart.details.title).set(
         {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
       );
+      this.$store.commit('addTitle', newTitle);
     },
     startRecording() {
       this.recording = true;

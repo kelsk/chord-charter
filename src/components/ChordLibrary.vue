@@ -27,7 +27,6 @@ export default {
     .then(doc => {
       const data = doc.data();
       this.chordData = data;
-      window.console.log(this.chordData)
       });
   },
   methods: {
@@ -39,7 +38,6 @@ export default {
       let altPrefix = '';
       let altString = '';
 
-      window.console.log('input = ', input);
       // chord is empty
       if (input.length === 0) {
         this.chord = '';
@@ -80,9 +78,6 @@ export default {
 
       if (this.chordData.alt.includes(quality)) {
         altPrefix = quality;
-        window.console.log('altPrefix = ', altPrefix);
-      } else if (this.chordData.quality.includes(quality)) {
-        window.console.log('quality = ', quality);
       }
       // checks for altered notes at the end of the chord
       i = input.length;
@@ -93,7 +88,6 @@ export default {
         if (!isNaN(input[input.length-2])) {
           noteLength = 2;
         }
-        window.console.log('note Length = ', noteLength)
 
         //  adds altered notes to altNotes array
         if (this.chordData.alt.includes(input[input.length - noteLength - 1])) {
@@ -113,14 +107,10 @@ export default {
     },
 
   buildChord(root, quality, altNotes) {
-    window.console.log('buildChord quality = ', quality);
-    window.console.log('buildChord altNotes = ', altNotes);
-    window.console.log('buildChord root = ', root);
 
     let chord = [];
     let notes = this.chordData.notes;
     let rootIndex = this.chordData.notes.indexOf(root);
-    window.console.log('rootIndex = ', rootIndex);
     const getIndex = (a, b) => {
       if (b === 6 && [2, 3, 5, 6, 14, 15, 17, 18].includes(a)) {
         b += 1
@@ -165,35 +155,27 @@ export default {
     let altIndex = 0;
     if (altNotes)
 {    altNotes.forEach(note => {
-      let prefix;
-      if (note.length > 1) {
-      prefix = note[0];
-      }
       let num = note[note.length-1];
       if (num === 9) num = 2;
       if (num === 1) num = 4;
-      window.console.log('prefix, num = ', prefix, num);
       if (rootIndex >= 13) {
         altIndex = getIndex(num * 3 - 2, rootIndex);
       } else {
         altIndex = getIndex(num * 3 - 3, rootIndex);
       }
       chord.push(notes[altIndex] + '4')
-      window.console.log('altIndex = ', altIndex)
     })
-}    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
+    }
     this.buildTone(chord);
   },
   
   buildTone(chord) {
-  window.console.log('buildTone chord = ', chord);
   this.playChord(chord)
 
 },
     playChord(chord) {
           const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
           synth.triggerAttackRelease(chord, "8n");  
-          window.console.log("successfully played chord ", chord);
     },
 
 },

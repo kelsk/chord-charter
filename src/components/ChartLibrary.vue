@@ -20,9 +20,9 @@
       Add New Chart
       </router-link>
     </p>
-    <p v-bind:key="chart.id" v-for="chart in $store.state.chartTitles">
-      <router-link :to="`/${chart.id}`">
-      {{chart.title}}
+    <p v-bind:key="chart" v-for="chart in $store.state.chartTitles">
+      <router-link :to="`/${chart}`">
+      {{chart}}
       </router-link>
     </p>
   </div>
@@ -44,22 +44,19 @@ export default {
     }
   },
   created() {
+    let titles = [];
     this.clearState();
     db.collection('chordcharts').get()
     .then( charts => {
       charts.docs.forEach(doc => {
-        db.collection('chordcharts').doc(doc.id).get()
-        .then( response => {
-          let chart = {
-            title: response.data().details.title,
-            id: doc.id
-          }
-          this.chartTitles.push(chart)
-        })
+          titles.push(doc.id)
       })
-    this.$store.commit('addChartTitles', this.chartTitles)
+    this.$store.commit('addChartTitles', titles);
     }
   )
+  },
+  mounted() {
+    this.chartTitles = this.$store.state.chartTitles;
   },
   methods: {
     clearState() {

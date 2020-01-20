@@ -27,6 +27,7 @@ const store = new Vuex.Store({
         font: 'Alata'
       },
     },
+    chordBoardNames: [],
     currentChordBoard: 'default',
     currentChordBoardLayout: [' c h o r d   b o a r d '],
     currentUser: {
@@ -43,6 +44,10 @@ const store = new Vuex.Store({
     addChartTitles(state, titles) {
       state.chartTitles = titles;
       window.console.log('successfully stored chart titles: ', titles)
+    },
+    addChordBoardName(state, names) {
+      state.chordBoardNames = names;
+      window.console.log('successfully stored chordboard name: ', names)
     },
     toggle(state, n) {
       state.currentChordBoard = n
@@ -82,7 +87,11 @@ const store = new Vuex.Store({
     removeTitle(state, title) {
       state.chartTitles.splice(state.chartTitles.indexOf(title), 1);
       window.console.log('successfully removed title from state: ', title)
-    }
+    },
+    removeChordboard(state, name) {
+      state.chordBoardNames.splice(state.chordBoardNames.indexOf(name), 1);
+      window.console.log('successfully removed name from state: ', name)
+    },
   },
   // below methods from https://blog.logrocket.com/vue-firebase-authentication/
   // retrieved on 1/18/20
@@ -101,5 +110,4 @@ const store = new Vuex.Store({
   }
 })
 
-window.console.log(store)
 export default store;

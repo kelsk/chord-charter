@@ -40,18 +40,19 @@ export default {
       chordProgression: []
     }
   },
+
   beforeDestroy() {
     window.removeEventListener("keypress", this.playKeyboard);
-    window.console.log('were in the destroy!');
   },
+
   created(){
     window.addEventListener("keypress", this.playKeyboard);
   },
+
   mounted() {
     db.collection('chordlibrary').doc('chord-reference').get()
       .then(doc => {
         let data = doc.data();
-        window.console.log('Chord Reference: ', data);
         this.chordReference = data;
         this.$emit('chordReference', data);
       })
@@ -60,7 +61,6 @@ export default {
     .then(doc => {
       const data = doc.data();
       this.noteData = data;
-      window.console.log(this.noteData)
       });
 
     this.keyboard = new Keyboard({
@@ -71,12 +71,8 @@ export default {
         preventMouseDownDefault: true,
     })
     this.loadChordBoard(this.$store.state.currentChordBoard)
-    window.console.log('keyboard before mounted: ', this.keyboard)
-    window.console.log('ChordBoard mounted with keyboard value: ', this.keyboard);
   },
-  afterMount() {
 
-  },
   methods: {
     playKeyboard(e) {
       if (this.boardname != 'qwerty' && (this.recording || !this.nested)) {
@@ -134,7 +130,6 @@ export default {
         if (this.boardname != 'qwerty')
         {
           document.getElementById("simple-keyboard-wrapper").querySelector("div").addEventListener("click", event => {
-          window.console.log('event: ', event.target.innerText);
           if (this.chordReference[event.target.innerText]) {
             this.playChord(this.chordReference[event.target.innerText])
           } else {
@@ -142,11 +137,7 @@ export default {
           }
           })
         }
-      // this.callChord(event.target.value);
     });
-    },
-    editChord() {
-      window.console.log('Editing chordboard: ', this.keyboard.getOptions().layoutName)
     },
 
     callChord(e) {
@@ -154,7 +145,6 @@ export default {
         this.keys.forEach(i => {
           if (i.key === letter) {
             if (this.chordReference.hasOwnProperty(i.chord)) {
-              window.console.log('were in the chord reference!!!');
               this.playChord(this.chordReference[i.chord]);
             } else {
               this.interpretChord(i.chord);
@@ -172,7 +162,6 @@ export default {
       let altPrefix = '';
       let altString = '';
 
-      window.console.log('input = ', input);
       // chord is empty
       if (input.length === 0) {
         this.chord = '';
@@ -213,9 +202,8 @@ export default {
 
       if (this.noteData.alt.includes(quality)) {
         altPrefix = quality;
-        window.console.log('altPrefix = ', altPrefix);
       } else if (this.noteData.quality.includes(quality)) {
-        window.console.log('quality = ', quality);
+        quality;
       }
       // checks for altered notes at the end of the chord
       i = input.length;
@@ -226,7 +214,6 @@ export default {
         if (!isNaN(input[input.length-2])) {
           noteLength = 2;
         }
-        window.console.log('note Length = ', noteLength)
 
         //  adds altered notes to altNotes array
         if (this.noteData.alt.includes(input[input.length - noteLength - 1])) {
@@ -245,102 +232,86 @@ export default {
     this.buildChord(root, quality, altNotes);
     },
 
-  buildChord(root, quality, altNotes) {
-    window.console.log('buildChord quality = ', quality);
-    window.console.log('buildChord altNotes = ', altNotes);
-    window.console.log('buildChord root = ', root);
+    buildChord(root, quality, altNotes) {
 
-    let chord = [];
-    let notes = this.noteData.notes;
-    let rootIndex = this.noteData.notes.indexOf(root);
-    if (!notes[rootIndex] || rootIndex === undefined) {
-      window.alert(`Couldn't play the chord with note ${root}`);
-      return
-    }
-    window.console.log('rootIndex = ', rootIndex);
-    const getIndex = (a, b) => {
-      if (b === 6 && [2, 3, 5, 6, 14, 15, 17, 18].includes(a)) {
-        b += 1
-      } 
-      if (b === 6 && [4, 7, 16].includes(a)) { 
-        b += 2
+      let chord = [];
+      let notes = this.noteData.notes;
+      let rootIndex = this.noteData.notes.indexOf(root);
+      if (!notes[rootIndex]) {
+        window.alert(`Couldn't play the chord with note ${root}`);
+        return
       }
-      if (b === 12 && [17, 18].includes(a)) {
-        b += 1
+      const getIndex = (a, b) => {
+        if (b === 6 && [2, 3, 5, 6, 14, 15, 17, 18].includes(a)) {
+          b += 1
+        } 
+        if (b === 6 && [4, 7, 16].includes(a)) { 
+          b += 2
+        }
+        if (b === 12 && [17, 18].includes(a)) {
+          b += 1
+        }
+        if ( a + b >= notes.length) { 
+          return (a + b - notes.length)
+        } else { return a + b }
       }
-      if ( a + b >= notes.length) { 
-        return (a + b - notes.length)
-      } else { return a + b }
-    }
-    let third = getIndex(rootIndex, 6);
-    let fifth = getIndex(rootIndex, 12);
+      let third = getIndex(rootIndex, 6);
+      let fifth = getIndex(rootIndex, 12);
 
-    // minor
-    if (quality === 'm') {
-      third -= 1
-    }
-    // diminished
-    else if (quality === 'dim' || quality === '°') {
-      third -= 1;
-      fifth -= 1;
-    }
-    // augmented
-    else if (quality === 'aug' || quality === '+') {
-      fifth += 1
-    }
-
-    // remove third in suspended
-    if (quality && quality.includes('sus')) {
-      chord.push(notes[rootIndex] + '4', notes[getIndex(9, rootIndex)] + '4', notes[fifth] + '4')
-    } else {
-    // add notes to chord
-    chord.push(notes[rootIndex] + '4', notes[third] + '4', notes[fifth] + '4');
-    }
-
-
-    // altered notes
-    let altIndex = 0;
-    if (altNotes)
-{    altNotes.forEach(note => {
-      let prefix;
-      if (note.length > 1) {
-      prefix = note[0];
+      // minor
+      if (quality === 'm') {
+        third -= 1
       }
-      let num = note[note.length-1];
-      if (num === 9) num = 2;
-      if (num === 1) num = 4;
-      window.console.log('prefix, num = ', prefix, num);
-      if (rootIndex >= 13) {
-        altIndex = getIndex(num * 3 - 2, rootIndex);
+      // diminished
+      else if (quality === 'dim' || quality === '°') {
+        third -= 1;
+        fifth -= 1;
+      }
+      // augmented
+      else if (quality === 'aug' || quality === '+') {
+        fifth += 1
+      }
+
+      // remove third in suspended
+      if (quality && quality.includes('sus')) {
+        chord.push(notes[rootIndex] + '4', notes[getIndex(9, rootIndex)] + '4', notes[fifth] + '4')
       } else {
-        altIndex = getIndex(num * 3 - 3, rootIndex);
+      // add notes to chord
+      chord.push(notes[rootIndex] + '4', notes[third] + '4', notes[fifth] + '4');
       }
-      chord.push(notes[altIndex] + '4')
-      window.console.log('altIndex = ', altIndex)
-    })
-  }
-    chord.forEach(note => {
-      if ( note.includes('undefined') ) {
-      window.console.log('ITS UNDEFINED!!!!')
-      }
-      else {
-        window.console.log('i mean at least were in the loop');
-        window.console.log(chord);
-      }
-    })
-    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
-    this.buildTone(chord);
-  },
-  
-  buildTone(chord) {
-  window.console.log('buildTone chord = ', chord);
-  this.playChord(chord)
 
-},
-playChord(chord) {
-    const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
-    synth.triggerAttackRelease(chord, "8n");
-    window.console.log("successfully played chord ", chord);
+      // altered notes
+      let altIndex = 0;
+      if (altNotes) {
+        altNotes.forEach(note => {
+          let num = note[note.length-1];
+          if (num === 9) num = 2;
+          if (num === 1) num = 4;
+          if (rootIndex >= 13) {
+            altIndex = getIndex(num * 3 - 2, rootIndex);
+          } else {
+            altIndex = getIndex(num * 3 - 3, rootIndex);
+          }
+          chord.push(notes[altIndex] + '4')
+        })
+      }
+      chord.forEach(note => {
+        if ( note.includes('undefined') ) {
+        window.alert('Unknown Error in buildChord')
+        }
+        else {
+          this.buildTone(chord);
+        }
+      })
+    },
+    
+    buildTone(chord) {
+      this.playChord(chord)
+    },
+
+    playChord(chord) {
+      const synth = new Tone.PolySynth(chord.length, Tone.Synth).toMaster();
+      synth.triggerAttackRelease(chord, "8n");
     },
 
   }

@@ -12,7 +12,7 @@ export default {
   props: {
     chordReference: Object,
     chordProgression: Array,
-    bpm: Number,
+    bpm: String,
   },
   data() {
     return {

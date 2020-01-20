@@ -8,16 +8,16 @@
   <div>
     <div class="chordboard__nav-wrapper">
   <ul class='chordboard__nav'>
-  <li v-bind:key="board.id" v-for="board in chordboards">
+  <li v-bind:key="board.id" v-for="board in chordBoardNames">
     <button
-    v-if="$store.state.currentChordBoard === board.key"
+    v-if="$store.state.currentChordBoard === board"
     class="chordboard__selected" 
-    v-on:click="toggleQwertyKeyboard(board.key)">
-      {{board.key}}
+    v-on:click="toggleQwertyKeyboard(board)">
+      {{board}}
     </button>
     <button v-else
-    v-on:click="toggleQwertyKeyboard(board.key)">
-      {{board.key}}
+    v-on:click="toggleQwertyKeyboard(board)">
+      {{board}}
     </button>
   </li>
   <li>
@@ -29,6 +29,9 @@
   <div class="chordboard__edit-btn">
     <button v-on:click="editChordBoard">
     Edit {{$store.state.currentChordBoard}}
+    </button>
+    <button v-on:click="deleteChordBoard">
+    Delete {{$store.state.currentChordBoard}}
     </button>
   </div>
     </div>
@@ -72,6 +75,7 @@ export default {
     return {
       boardname: this.$store.state.currentChordBoard,
       chordboards: [],
+      chordBoardNames: [],
       chordBoardToEdit: 'New ChordBoard',
       chordProgression: [],
       editingChordBoard: false,
@@ -80,12 +84,18 @@ export default {
     }
   },
   created() {
+    let chordBoardNames = [];
     db.collection('chordboards').get()
     .then(snapshot => snapshot.forEach(doc => {
-      this.chordboards.push({key: doc.id, chords: doc.data()})
+      this.chordboards.push({key: doc.id, chords: doc.data()});
+      chordBoardNames.push(doc.id);
     }
-    ));
-},
+    ))
+    this.$store.commit('addChordBoardName', chordBoardNames);
+  },
+  mounted() {
+    this.chordBoardNames = this.$store.state.chordBoardNames;
+  },
   methods: {
     toggleQwertyKeyboard(boardname) {
       this.editingChordBoard = false;
@@ -95,6 +105,14 @@ export default {
     },
     createNewChordBoard() {
       this.editingChordBoard = true;
+    },
+    deleteChordBoard() {
+      const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$store.state.currentChordBoard}?`);
+      if (deleteDoc === true) {
+      this.$store.commit('removeChordboard', this.$store.state.currentChordBoard);
+      db.collection('chordboards').doc(this.$store.state.currentChordBoard).delete();
+      }
+      this.$store.commit('updateChordBoard', ['name', this.chordBoardNames[this.chordBoardNames.length - 1]])
     },
     editChordBoard() {
       this.chordBoardToEdit = this.$store.state.currentChordBoard;

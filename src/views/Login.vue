@@ -66,10 +66,10 @@ export default {
               self.$router.push('/charts')
             }
           ).catch(
-            error => window.console.log('Sign In error: ', error)
+            error => window.alert('Sign In error: ', error)
           )
         } else [
-          window.console.log('Create User error: ', error)
+          window.alert('Create User error: ', error)
         ]
       });
     },

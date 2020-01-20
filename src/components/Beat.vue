@@ -23,11 +23,10 @@ export default {
     editBeat() {
       this.editing = true;
       this.$emit('editing');
-      window.addEventListener('focusout', () => {this.editing = false; window.console.log('no longer editing beat ')})
+      window.addEventListener('focusout', () => {this.editing = false})
     },
     saveBeat(chord) {
       this.edit(chord, this.beatId)
-      window.console.log('saveBeat: saved beat ', chord);
     }
   }
 }

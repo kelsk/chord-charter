@@ -96,10 +96,6 @@ data() {
   }
 },
 mounted() {
-  window.console.log('EditChordBoardForm mounted');
-  window.console.log('ChordBoard name: ', this.chordBoardName);
-  window.console.log('ChordBoard to edit: ', this.chordBoardToEdit);
-  window.console.log('chords: ', this.chords);
   this.keys.forEach((el, i) => { this.keysWithIndex.push({id: i, key: el})});
   this.updateChordBoardName(this.chordBoardToEdit);
   db.collection('chordboards').doc(`${this.chordBoardToEdit}`).get().then(
@@ -107,7 +103,6 @@ mounted() {
       let data = response.data();
       if (data.keys) {
         this.chords = data.keys;
-        window.console.log('chords updated with keys');
         data.keys.forEach(el => {
           this.keys[this.keys.indexOf(el.key)] = el.chord;
         })
@@ -117,23 +112,27 @@ mounted() {
 },
 methods: {
   addChordAtIndex(value, i) {
-    window.console.log('index: ', i);
     this.chords[i] = {key: this.keys[i], chord: value}
-    window.console.log(this.chords);
   },
   saveChordBoard() {
     let chords = this.chords;
+    let self = this;
+    let chordBoardNames = this.$store.state.chordBoardNames;
+    if (!chordBoardNames.includes(this.chordBoardName)){
+      chordBoardNames.push(this.chordBoardName);
+    }
     db.collection('chordboards').doc(this.chordBoardName).set({
       keys: chords
-    }, {merge: true});
-    window.console.log('ChordBoard saved: ', this.chordBoardName);
-    this.$store.commit('updateChordBoard', [this.chordBoardName, chords])
+    }, {merge: true}).then(
+      function() {
+        self.$store.commit('updateChordBoard', [self.chordBoardName, chords])
+        self.$store.commit('addChordBoardName', chordBoardNames);
+        window.alert('ChordBoard saved: ', self.chordBoardName);
+      }      
+    ).catch(error => window.console.log(error));
   },
   updateChordBoardName(name) {
-    window.console.log("ChordBoard name: ", name);
     this.$store.commit('updateChordBoard', ['name', name])
-    window.console.log("ChordBoard name in state: ", this.$store.state.currentChordBoard);
-    window.console.log('ChordBoard name in window: ', this.chordBoardName);
   }
 }
 }

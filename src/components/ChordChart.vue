@@ -144,8 +144,6 @@ export default {
     db.collection('chordcharts').doc(route).get()
     .then(response => {
       const chart = response.data();
-      window.console.log('response: ', response);
-      window.console.log(response.data());
       if (!chart) {
         this.chart.error = true
       } else {
@@ -155,10 +153,9 @@ export default {
         this.populateMeasures();
         this.$store.commit('loadChart', chart);
       }
-      window.console.log('chart: ', chart);
     })
     .catch(error => {
-      window.console.log('Error: ', error)
+      window.alert('Error: ', error)
     })
   },
   methods: {
@@ -176,7 +173,6 @@ export default {
           font: newFont
         }
       }, {merge: true});
-      window.console.log("ran updateFont with font ", newFont);
     },
     updateMeasuresPerLine(event) {
       let etv = event.target.value;
@@ -193,7 +189,6 @@ export default {
 
     populateMeasures() {
       const beatsPerMeasure = this.chart.details.timeSig.upper;
-      window.console.log('in PopulateMeasures, bpm is ', beatsPerMeasure)
       let lyricIndex = 0;
       for (let i=0; i<this.chart.content.beats.length; i++) {
         let measure = {};
@@ -228,11 +223,8 @@ export default {
           if (currentBeat === '') {
             measure.beats[i-1] = '/';
             currentBeat = measure.beats[i];
-            window.console.log('Successfully rendered empty beat');
           } else if (currentBeat === measure.beats[i]) {
             measure.beats[i] = ''
-            window.console.log('Successfully rendered duplicate beat');
-
           } else {
             currentBeat = measure.beats[i]
           }
@@ -241,7 +233,6 @@ export default {
     },
     loadChordReference(chords) {
       this.chordReference = chords;
-      window.console.log('Successfully loaded Chordreference in ChordChart', this.chordReference);
     }
   }
 }

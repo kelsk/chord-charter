@@ -208,6 +208,7 @@ select:hover {
   text-align: center;
   font-size: 2rem;
   margin: 2rem;
+  min-width: 600px;
 }
 .chart__options-wrapper {
   width: 100%;
