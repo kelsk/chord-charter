@@ -33,6 +33,11 @@ export default {
   store,
   components: {
   },
+  data() {
+    return {
+      chordReference: [],
+    }
+  },
   methods: {
     logoutUser() {
       let self = this;

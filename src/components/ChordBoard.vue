@@ -22,16 +22,14 @@ export default {
   props: {
     username: String,
     chordboards: Array,
+    nested: Boolean,
   },
   
   data() {
     return {
       chord: '',
-      chordData: [],
-
-      // chordboards should populate
-      // maybe using state
-      // from the user's total chordboards
+      chordReference: [],
+      noteData: [],
       keys: [],
       keyboard: null,
       boardname: this.$store.state.currentChordBoard,
@@ -42,20 +40,27 @@ export default {
       chordProgression: []
     }
   },
+  beforeDestroy() {
+    window.removeEventListener("keypress", this.playKeyboard);
+    window.console.log('were in the destroy!');
+  },
   created(){
-    window.addEventListener("keypress", e => {
-      if (this.recording === true && this.boardname != 'qwerty') {
-      this.callChord(e);
-      }
-    });
-    
+    window.addEventListener("keypress", this.playKeyboard);
   },
   mounted() {
+    db.collection('chordlibrary').doc('chord-reference').get()
+      .then(doc => {
+        let data = doc.data();
+        window.console.log('Chord Reference: ', data);
+        this.chordReference = data;
+        this.$emit('chordReference', data);
+      })
+
     db.collection('chordlibrary').doc('default-chords').get()
     .then(doc => {
       const data = doc.data();
-      this.chordData = data;
-      window.console.log(this.chordData)
+      this.noteData = data;
+      window.console.log(this.noteData)
       });
 
     this.keyboard = new Keyboard({
@@ -73,6 +78,11 @@ export default {
 
   },
   methods: {
+    playKeyboard(e) {
+      if (this.boardname != 'qwerty' && (this.recording || !this.nested)) {
+      this.callChord(e);
+      }
+    },
     startRecording() {
       this.recording = true;
     },
@@ -134,31 +144,19 @@ export default {
     editChord() {
       window.console.log('Editing chordboard: ', this.keyboard.getOptions().layoutName)
     },
-    // playChord(e) {
-    //   const note = e.key.toLowerCase();
-    //   this.charToNote.forEach((char) => {
-    //     if (char.hasOwnProperty(note)) {
-    //       const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
-    //       synth.triggerAttackRelease(char[note], "8n");  
-    //       window.console.log("successfully played chord ", char.chord);
-    //       this.chordProgression.push(char.chord);
-    //       window.console.log(this.chordProgression)
-    //     }
-    //   })
-    // },
 
     callChord(e) {
       const letter = e.key.toLowerCase();
-      db.collection('chordboards').doc(this.boardname).get()
-      .then(doc => {
-        let result = doc.data();
-        window.console.log('result = ', result);
-        result.keys.forEach(i => {
+        this.keys.forEach(i => {
           if (i.key === letter) {
-            this.interpretChord(i.chord);
+            if (this.chordReference.hasOwnProperty(i.chord)) {
+              window.console.log('were in the chord reference!!!');
+              this.playChord(this.chordReference[i.chord]);
+            } else {
+              this.interpretChord(i.chord);
+            }
             this.$emit('beat', i.chord)
-          }
-        })
+        }
       })
 
     },
@@ -183,7 +181,7 @@ export default {
         return;
       }
       // checks if chord is flat, sharp, or natural
-      if (input[1] === this.chordData.flat || input[1] === this.chordData.sharp) {
+      if (input[1] === this.noteData.flat || input[1] === this.noteData.sharp) {
         root = input.substr(0, 2);
         input = input.substr(2, input.length);
         if (input.length === 0) {
@@ -209,10 +207,10 @@ export default {
       }
       input = input.substr(quality.length, input.length);
 
-      if (this.chordData.alt.includes(quality)) {
+      if (this.noteData.alt.includes(quality)) {
         altPrefix = quality;
         window.console.log('altPrefix = ', altPrefix);
-      } else if (this.chordData.quality.includes(quality)) {
+      } else if (this.noteData.quality.includes(quality)) {
         window.console.log('quality = ', quality);
       }
       // checks for altered notes at the end of the chord
@@ -227,7 +225,7 @@ export default {
         window.console.log('note Length = ', noteLength)
 
         //  adds altered notes to altNotes array
-        if (this.chordData.alt.includes(input[input.length - noteLength - 1])) {
+        if (this.noteData.alt.includes(input[input.length - noteLength - 1])) {
         altNotes.push(input.substr(input.length - noteLength - 1, noteLength + 1));
         } else if (altPrefix.length > 0) {
           altNotes.push(altPrefix += input.substr(input.length - noteLength, noteLength))
@@ -249,8 +247,12 @@ export default {
     window.console.log('buildChord root = ', root);
 
     let chord = [];
-    let notes = this.chordData.notes;
-    let rootIndex = this.chordData.notes.indexOf(root);
+    let notes = this.noteData.notes;
+    let rootIndex = this.noteData.notes.indexOf(root);
+    if (!notes[rootIndex] || rootIndex === undefined) {
+      window.alert(`Couldn't play the chord with note ${root}`);
+      return
+    }
     window.console.log('rootIndex = ', rootIndex);
     const getIndex = (a, b) => {
       if (b === 6 && [2, 3, 5, 6, 14, 15, 17, 18].includes(a)) {
@@ -312,7 +314,17 @@ export default {
       chord.push(notes[altIndex] + '4')
       window.console.log('altIndex = ', altIndex)
     })
-}    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
+  }
+    chord.forEach(note => {
+      if ( note.includes('undefined') ) {
+      window.console.log('ITS UNDEFINED!!!!')
+      }
+      else {
+        window.console.log('i mean at least were in the loop');
+        window.console.log(chord);
+      }
+    })
+    window.console.log('buildChord triad: ', notes[rootIndex], notes[third], notes[fifth], notes[altIndex]);
     this.buildTone(chord);
   },
   

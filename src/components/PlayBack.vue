@@ -12,22 +12,31 @@ import Tone from 'tone'
 export default {
   name: 'PlayBack',  
   props: {
-    chordProgression: Array
+    chordReference: Object,
+    chordProgression: Array,
+    bpm: Number,
   },
   mounted() {
-    window.console.log('PlayBack mounted');
+    window.console.log('PlayBack mounted with chord reference = ', this.chordReference);
   },
   methods: {
     playSong() {
-      let synth = new Tone.Synth().toMaster();
-      let bpm = 60;
-      let second = 60/bpm;
+      let synth = new Tone.PolySynth().toMaster();
+      let second = 60/this.bpm;
       let i = 1;
-      this.chordProgression.forEach(note => {
-        synth.triggerAttackRelease(`${note}4`, '4n', i);
-        window.console.log(note);
-        i += second;
-        window.console.log('i = ', i);
+      this.chordProgression.forEach(chord => {
+        if ( this.chordReference[chord]) {
+          synth.triggerAttackRelease(this.chordReference[chord], '4n', i);
+          window.console.log(chord);
+          i += second;
+          window.console.log('i = ', i);
+
+        } else if ( chord === "" || chord === "~") {
+          i += second;
+        } else {
+          window.console.log(chord);
+          window.alert(`Could not play chord ${chord}`)
+        }
       })
 
     },

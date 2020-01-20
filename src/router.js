@@ -61,7 +61,7 @@ const routes = [
         name: ':title',
         component: ChordChart,
         meta: {
-          requiresAuth: true
+          requiresAuth: true,
         },
         props: {
           fonts

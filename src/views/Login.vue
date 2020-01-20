@@ -64,7 +64,7 @@ export default {
         } else [
           window.console.log('Create User error: ', error)
         ]
-      })
+      });
     },
   }
 }

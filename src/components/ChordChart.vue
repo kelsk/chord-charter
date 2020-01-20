@@ -13,7 +13,10 @@
         {{$route.params.title}}
       </span>
       <span>
-        <PlayBack v-bind:chordProgression="$store.state.currentChart.content.beats"></PlayBack>
+        <PlayBack 
+        v-bind:chordReference="chordReference"
+        v-bind:chordProgression="$store.state.currentChart.content.beats" v-bind:bpm="$store.state.currentChart.details.tempo">
+        </PlayBack>
         <router-link :to="$route.params.title + `/edit`">
         <button>
           Edit Chart
@@ -82,12 +85,16 @@
     </section>
 
     </div>
+    <div class="chordboard__mini">
+      <ChordBoard ref="chordboard" @chordReference="loadChordReference"></ChordBoard>
+    </div>
   </div>
 </template>
 
 <script>
 import { db } from '../main.js'
 import PlayBack from './PlayBack.vue'
+import ChordBoard from './ChordBoard.vue'
 
 export default {
   name: 'ChordChart',
@@ -96,6 +103,7 @@ export default {
   },
   components: {
     PlayBack,
+    ChordBoard,
   },
   updated() {
     // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
@@ -112,6 +120,7 @@ export default {
   },
   data() {
     return {
+      chordReference: [],
       mpl: 4,
       measures: [],
       font: 'Alata',
@@ -221,11 +230,32 @@ export default {
           }
         }
       });
+    },
+    loadChordReference(chords) {
+      this.chordReference = chords;
+      window.console.log('Successfully loaded Chordreference in ChordChart', this.chordReference);
     }
   }
 }
 </script>
 
 <style>
+.chordboard__mini {
+  height: 50%;
+  width: 50%;
+  float: right;
+padding: 0;
+  margin-top: 4rem;
+}
+.chordboard__mini * * {
+  height: 80%;
+  width: 80%;
+  font-size: .5rem;
+  padding: 0;
+  margin: 0;
+}
+.chordboard__mini .hg-button {
+  height: auto;
+}
 
 </style>
