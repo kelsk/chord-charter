@@ -19,9 +19,7 @@ export default {
       i: 1
     }
   },
-  mounted() {
-    window.console.log('PlayBack mounted with chord reference = ', this.chordReference);
-  },
+
   methods: {
     playSong() {
       let synth = new Tone.PolySynth().toMaster();
@@ -29,14 +27,10 @@ export default {
       this.chordProgression.forEach(chord => {
         if ( this.chordReference[chord]) {
           synth.triggerAttackRelease(this.chordReference[chord], '4n', this.i);
-          window.console.log(chord);
           this.i += second;
-          window.console.log('i = ', this.i);
-
         } else if ( chord === "" || chord === "~") {
           this.i += second;
         } else {
-          window.console.log(chord);
           window.alert(`Could not play chord ${chord}`)
         }
       })

@@ -13,12 +13,18 @@
         </button>
       </span>
       <span class="chart__options-lyrics">
-        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">Add Lyrics</button>
-        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" 
+        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput(); viewLyricsModal()">Add Lyrics</button>
+        <textarea v-if="lyricInputVisible" 
+        class="chart__options-lyrics-text" 
         v-model="rawLyrics"
         v-on:change="addLyrics($event)">
         </textarea>
       </span>
+
+      <div class="lyrics-modal" 
+      v-if="lyricModalVisible" 
+      v-on:click="viewLyricsModal(); viewLyricsInput()">
+      </div>
 
       <span>
         Measures per line:
@@ -218,7 +224,20 @@
   <!-- <button v-on:click="addNewChart">
     ADD NEW CHART
   </button> -->
+  <div class="chordboard__mini">
+      <div class="caret__container">
+        <span>Chordboard: {{this.$store.state.currentChordBoard}}</span>
+        <div class="caret__background">
+        <div v-if="chordBoardMiniHidden" class="caret__up" v-on:click="chordBoardMiniToggle">
+        </div>
+        <div v-else class="caret__down" v-on:click="chordBoardMiniToggle">
+        </div>
+        </div>
+      </div>
+      <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
   <ChordBoard ref="chordboard" v-bind:recording="recording" v-bind:nested="true" @beat="recordBeat"></ChordBoard>
+  </div>
+  </div>
   </div>
 
 </template>
@@ -245,6 +264,8 @@ export default {
       // can't access nested elements with v-model
       //TODO: fix publicDomain & timeSig
       lyricInputVisible: false,
+      lyricModalVisible: false,
+      chordBoardMiniHidden: this.$store.state.miniHidden,
       publicDomain: false,
       timeSig: [4, 4],
       editingBeat: false,
@@ -317,17 +338,15 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars});
     },
     addBeat(beat) {
-      window.console.log('addBeat');
       this.beats.push(beat);
       let i = this.beats.length - 1;
       this.addBeatsToMeasures(beat, i)
     },
     addBeatsToMeasures(beat, id) {
       let i = this.measures.length - 1;
-      window.console.log(this.bars)
-      this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
+        i++;
       } else if (this.measures[i].length === 1) {
         let newBar = {
           end: {
@@ -342,6 +361,8 @@ export default {
         this.bars.push(newBar);
         this.addBars();
       }
+      this.measures[i].push({chord: beat, id: id} );
+
     },
     addLyrics(event) {
       let rawLyrics = event.target.value;
@@ -349,32 +370,27 @@ export default {
       let lines = event.target.value.split('\n');
       this.lyrics = lines;
       this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
-      window.console.log(lines)
     },
     editBar(index, position) {
       this.bars[index][position]['repeat'] = !this.bars[index][position]['repeat'];
       this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars})
-      window.console.log(index);
-      window.console.log(position);
     },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
       const bottom = parseInt(event.target.value[2]);
-      window.console.log(event.target.value);
       const timeSig = { target: { value: {upper: top, lower: bottom} } }; 
       this.addChartState(timeSig, fields)
     },
     addChartState(event, fields) {
       let updates = {keys: fields, value: event.target.value}
       this.$store.commit('editChart', updates);
+      
     },
     addNewChart() {
       const chart = this.$store.state.currentChart;
-      window.console.log(chart);
       db.collection('chordcharts').doc(chart.details.title).set(
         chart
       );
-      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
     },
     clearState() {
       const currentChart = {
@@ -398,10 +414,14 @@ export default {
       this.$store.commit('loadChart', currentChart);
       this.loadChart();
     },
+    chordBoardMiniToggle() {
+      this.$store.commit('toggleMiniChordBoard', !this.chordBoardMiniHidden);
+      this.chordBoardMiniHidden = this.$store.state.miniHidden;
+
+    },
     editBeat(chord, id) {
       this.measures.forEach(measure => {
         measure.forEach(beat => {
-          window.console.log('beat id: ', beat.id)
           if (beat.id === id) {
             beat.chord = chord
           }
@@ -413,13 +433,10 @@ export default {
     loadChart() {
       if (this.$store.state.currentChart) {
         let currentChart = this.$store.state.currentChart;
-        window.console.log('current chart: ', currentChart);
         this.title = currentChart.details.title;
         this.mpl = currentChart.style.measuresPerLine;
         this.beats = currentChart.content.beats;
-        window.console.log('beats: ', this.beats);
         this.bars = currentChart.content.bars;
-        window.console.log('bars: ', this.bars);
         this.lyrics = currentChart.content.lyrics;
         currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
         this.currentFont = currentChart.style.font;
@@ -428,7 +445,6 @@ export default {
         {
           this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
         }
-        window.console.log('NewChordChart: mounted chart: ', currentChart);
       }
     },
     playChord(e) {
@@ -464,7 +480,6 @@ export default {
       })
       this.beats.splice(index, 1);
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
-      // this.measures[-1].splice(-1, 1)
     },
     removeMeasure(index) {
       this.measures.splice(index, 1);
@@ -477,11 +492,12 @@ export default {
         if (!titleConfirmation) return;
       }
       const chart = this.$store.state.currentChart;
-      window.console.log(chart);
       db.collection('chordcharts').doc(chart.details.title).set(
         {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
       );
+      if (!this.$store.state.chartTitles.includes(newTitle)){
       this.$store.commit('addTitle', newTitle);
+      }
     },
     startRecording() {
       this.recording = true;
@@ -508,12 +524,14 @@ export default {
       this.recording = false;
       this.lyricInputVisible = !this.lyricInputVisible;
     },
+    viewLyricsModal() {
+      this.lyricModalVisible = !this.lyricModalVisible;
+    },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
       submittedChordProgression.set({
         chords: this.chordProgression,
       }, {merge: true}).then(() => {
-        window.console.log('Added chord prog for ', submittedChordProgression.id)
       })
     }
   }

@@ -6,9 +6,6 @@ import "firebase/auth";
 import "firebase/firestore";
 import router from './router.js';
 import store from './store';
-// import Keyboard from 'simple-keyboard';
-// import 'simple-keyboard/build/css/index.css'
-
 
 
 const firebaseConfig = {
@@ -60,4 +57,3 @@ new Vue({
 // })
 
 
-// export default keyboard;

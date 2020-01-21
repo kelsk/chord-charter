@@ -2,13 +2,10 @@
   <div id="editkeyboard">
     Edit ChordBoard: 
     <input class="chordboard__name" v-bind:placeholder="chordBoardToEdit" v-on:change="updateChordBoardName($event.target.value)">
-    <button v-on:click="saveChordBoard">
-      Save {{this.chordBoardName}}
-      </button>
 
     <div class="simple-keyboard">
-<div class="simple-keyboard hg-theme-default hg-layout-default  ">
-  <div class="hg-row">
+    <div class="simple-keyboard hg-theme-default hg-layout-default  ">
+    <div class="hg-row">
     
     <div 
     v-bind:key="key.id" 
@@ -19,52 +16,54 @@
 
     </div>
     
-<div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r0b10">
-  <span>
+    <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r0b10">
+    <span>
     
-  </span>
+    </span>
     </div>
     </div>
     
     <div class="hg-row">
-          <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
+      <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
+      <span>
     
-  </span>
-    </div>
-    <div 
+      </span>
+      </div>
+      <div 
       v-bind:key="key.id" 
       v-for="key in keysWithIndex.slice(10, 19)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b0">
-    <input 
-    v-bind:placeholder="key.key"
-    v-on:change="addChordAtIndex($event.target.value, key.id)">
-
-    </div>
-    <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b10">
-  <span>
+      <input 
+      v-bind:placeholder="key.key"
+      v-on:change="addChordAtIndex($event.target.value, key.id)">
+      </div>
+      <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b10">
+      <span>
     
-  </span>
-    </div></div>
+      </span>
+      </div>
+    </div>
     
     <div class="hg-row">
     <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
-    
-  </span>
+    <span>
+
+    </span>
     </div>
     
     <div 
-        v-bind:key="key.id" 
-        v-for="key in keysWithIndex.slice(19, 26)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b0">
-    <input
-    v-bind:placeholder="key.key"
-    v-on:change="addChordAtIndex($event.target.value, key.id)">
+      v-bind:key="key.id" 
+      v-for="key in keysWithIndex.slice(19, 26)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b0">
+      <input
+      v-bind:placeholder="key.key"
+      v-on:change="addChordAtIndex($event.target.value, key.id)">
     </div>
     <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
+    <span>
     
-  </span>
-    </div></div></div>
+    </span>
+    </div>
+    </div>
+    </div>
     </div>
   </div>  
 

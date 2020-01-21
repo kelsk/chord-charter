@@ -34,28 +34,25 @@ const store = new Vuex.Store({
       loggedIn: false,
       data: null
     },
+    miniHidden: false,
   },
   getters: {
     currentUser(state) {
       return state.currentUser
-    }
+    },
   },
   mutations: {
     addChartTitles(state, titles) {
       state.chartTitles = titles;
-      window.console.log('successfully stored chart titles: ', titles)
     },
     addChordBoardName(state, names) {
       state.chordBoardNames = names;
-      window.console.log('successfully stored chordboard name: ', names)
     },
     toggle(state, n) {
       state.currentChordBoard = n
-      window.console.log('successfully stored state: ', n)
     },
     toggleLayout(state, n) {
       state.currentChordBoardLayout = n;
-      window.console.log('successfully stored layout state: ', n)
     },
     updateChordBoard(state, n) {
       if (n[0] === 'name') {
@@ -64,15 +61,12 @@ const store = new Vuex.Store({
         state.currentChordBoard = n[0];
         state.keyboard = n[1];
       }
-      window.console.log('successfully updated chordboard state: ', n)
     },
     editChart(state, updates) {
-      window.console.log('update value: ', updates.value);
       state.currentChart[updates.keys[0]][updates.keys[1]] = updates.value;
     },
     loadChart(state, chart) {
       state.currentChart = chart;
-      window.console.log('successfully loaded chart state: ', chart)
     },
     setLoggedIn(state, value) {
       state.currentUser.loggedIn = value;
@@ -80,17 +74,17 @@ const store = new Vuex.Store({
     setCurrentUserData(state, data) {
       state.currentUser.data = data;
     },
+    toggleMiniChordBoard(state, value) {
+      state.miniHidden = value
+    },
     addTitle(state, title) {
       state.chartTitles.push(title);
-      window.console.log('successfully added title to state: ', title)
     },
     removeTitle(state, title) {
       state.chartTitles.splice(state.chartTitles.indexOf(title), 1);
-      window.console.log('successfully removed title from state: ', title)
     },
     removeChordboard(state, name) {
       state.chordBoardNames.splice(state.chordBoardNames.indexOf(name), 1);
-      window.console.log('successfully removed name from state: ', name)
     },
   },
   // below methods from https://blog.logrocket.com/vue-firebase-authentication/
@@ -106,7 +100,7 @@ const store = new Vuex.Store({
       } else {
         commit('setCurrentUserData', null);
       }
-    }
+    },
   }
 })
 

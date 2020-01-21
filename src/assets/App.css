@@ -1,7 +1,10 @@
+@font-face {
+  font-family: 'Desyrel';
+  src: url('DESYREL_.ttf');
+}
 :root {
-  --dark-gray: #2c3e50;
-  --light-gray: #e7e7eb;
-  
+  --dark-gray: #2a2d2a;
+  --light-gray: #e7e7eb;  
 }
 
 .hidden {
@@ -20,13 +23,26 @@ body {
 
 body a {
   text-decoration: none;
+  color: rgb(121, 140, 131);
 }
 body a:hover {
   color: blue
 }
-
+.login__welcome {
+  font-family: 'Desyrel';
+  font-size: 2rem;
+}
+.login__form {
+  margin: 2rem;
+  padding: 1rem;
+  border: 2px solid black;
+  border-radius: 10px;
+  max-width: 200px;
+}
 .app__nav {
   background-color: #0a0d0a;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 .app__nav a {
   padding: 10px;
@@ -36,6 +52,32 @@ body a:hover {
 .app__nav a:hover {
 background-color: gray;
 color: white
+}
+.app__nav .logo {
+  color: white;
+  font-family: 'Desyrel';
+  font-size: 1.5rem;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+}
+.user__wrapper {
+  width: 100%;
+}
+.login-btn {
+  font-weight: bold;
+  color:white;
+  margin-right: 10px;
+  height: 100%;
+  cursor: pointer;
+}
+.user {
+  font-weight: bold;
+  color:white;
+  margin-right: 10px;
+  height: 100%;
+  cursor: pointer;
+  float: right;
 }
 
 .chart__container {
@@ -64,6 +106,26 @@ color: white
 .chartlibrary p:hover a {
   color: white;
 }
+
+.chartlibrary__welcome {
+  height: 93.3vh;
+  background-image: url('./keyboard.jpg');
+  background-size: 125%;
+  padding: 0;
+}
+
+.chartlibrary__welcome-overlay {
+  height: 93.3vh;
+  width: 100%;
+  position: fixed;
+  background-color: rgba(255, 255, 255, 0.824)
+}
+
+.welcome-scroll {
+  overflow-y: scroll;
+  height: 93.3vh;
+}
+
 
 .caret__container {
   height: 34px;
@@ -114,18 +176,18 @@ background-color: #0a0d0a}
 
 /* CHART */
 
-.outer__chart {
+.outer__chart, .chart__new {
   overflow-x: scroll;
   white-space: nowrap;
+  background-color: rgba(0,0,0,.1);
 }
 .outer__chart::-webkit-scrollbar {
   display: none;
 }
-.chart__new {
-  width: 100%;
+.chart__new, .chart {
   overflow: scroll;
 }
-.chart__new::-webkit-scrollbar {
+.chart__new::-webkit-scrollbar, .chart::-webkit-scrollbar {
   display: none;
 }
 
@@ -207,9 +269,15 @@ select:hover {
 .chart {
   text-align: center;
   font-size: 2rem;
-  margin: 2rem;
+  padding: 1rem;
   min-width: 600px;
+  min-height: 400px;
+  margin: 2px;
+  border: 1px solid var(--light-gray, gray);
+  background-color: white;
+  border-radius: 10px;
 }
+
 .chart__options-wrapper {
   width: 100%;
 }
@@ -243,6 +311,15 @@ select:hover {
   height: 200px;
   width: 200px;
   white-space: pre-line;
+  z-index: 2;
+}
+
+.lyrics-modal {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  z-index: 1;
+  background-color: rgba(240, 240, 240, 0.2);
 }
 
 .chart__header {
@@ -256,6 +333,10 @@ select:hover {
   width: 100%;
   overflow: scroll;
 }
+.chart__body::-webkit-scrollbar {
+  display: none;
+}
+
 .grid__col-1 {
   grid-template-columns: 1fr;
 }
@@ -338,13 +419,56 @@ select:hover {
 
 
 .chordboard__mini {
-  height: 100px;
-  width: 100%;
+  width: 75%;
   float: right;
   text-align: center;
   padding: 0;
-  margin-top: 4rem;
+  position: fixed;
+  background-color: transparent;
+  display: grid;
+  bottom: 15px;
 }
+.chordboard__mini .caret__container {
+    font-size: 1rem;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 20px;
+    width: 100%;
+    text-align: center;
+    float: none;
+    background-color: transparent;
+}
+.caret__container span {
+  vertical-align: top;
+  margin-right: 5px;
+  color: rgb(160, 160, 160);
+  -webkit-font-smoothing: antialiased;
+
+}
+.chordboard__mini .caret__background {
+  display: inline-block;
+  background-color: rgba(0,0,0,.1);
+  width: 34px;
+  border-radius: 2px;
+  height: 16px;
+  padding-top: 4px;
+  padding-left: 3px;
+}
+.chordboard__mini .caret__up {
+  width: 0;
+  height: 0;
+  border-bottom: 15px solid white;
+  border-right: 15px solid transparent;
+  border-left: 15px solid transparent;
+  box-shadow: rgba(240, 240, 240, 0.2);
+}
+.chordboard__mini .caret__down {
+  width: 0;
+  height: 0;
+  border-top: 15px solid white;
+  border-right: 15px solid transparent;
+  border-left: 15px solid transparent;
+}
+
 .chordboard__mini .simple-keyboard.hg-theme-default .hg-button {
   height: 25px;
 }
@@ -424,4 +548,37 @@ select:hover {
 }
 .lyric:focus::placeholder {
   color: grey;
+}
+
+
+
+.chordboard__library {
+  margin: 0 30px;
+  display: inline-block;
+}
+.chordboard__nav-wrapper {
+  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 20px 0;
+}
+.chordboard__selected {
+  background-color: black;
+  color: white;
+  display: inline-block;
+}
+
+.chordboard__edit-btn {
+  width: 100%;
+  display: inline-block;
+  text-align: right;
+}
+.info {
+  border: 1px solid rgb(220, 220, 220);
+  padding: 1rem;
+  box-shadow: 4px 5px rgb(214, 233, 215);
+  max-width: 500px;
+  margin: 20px;
+  font-size: 0.9rem;
+  background-color: white;
 }
