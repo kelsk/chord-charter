@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="!this.$store.state.currentUser.data" class="login">
+  <div class="login">
+    <div v-if="!this.$store.state.currentUser.data" class="login__form">
       Please log in 
       <form id="login" v-on:submit.prevent="submitForm">
         <p>
@@ -20,15 +20,32 @@
         </button>
       </form>
     </div>
-    <div v-else>
-      Welcome to Chord Charter, {{this.$store.state.currentUser.data.displayName}}
+    <div v-else class="chart__container">
+      <ChartLibrary>
+      </ChartLibrary> 
+      <div class="login__welcome">
+        Chord Charter
+        <div class="login__links">
+        <router-link :to="'/chordboards'">
+        chordboards
+        </router-link>
+        <router-link :to="'/charts'">
+        charts
+        </router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import firebase from 'firebase'
+import ChartLibrary from '../components/ChartLibrary'
+
 export default {
   name: 'Login',
+  components: {
+    ChartLibrary
+  },
   data() {
     return {
       form: {
@@ -59,23 +76,13 @@ export default {
               self.$router.push('/charts')
             }
           ).catch(
-            error => window.console.log('Sign In error: ', error)
+            error => window.alert('Sign In error: ', error)
           )
         } else [
-          window.console.log('Create User error: ', error)
+          window.alert('Create User error: ', error)
         ]
-      })
+      });
     },
   }
 }
 </script>
-<style scoped>
-
-.login {
-  margin: 2rem;
-  padding: 1rem;
-  border: 2px solid black;
-  border-radius: 10px;
-  max-width: 200px;
-}
-</style>

@@ -13,7 +13,11 @@
         {{$route.params.title}}
       </span>
       <span>
-        <PlayBack v-bind:chordProgression="$store.state.currentChart.content.beats"></PlayBack>
+        <PlayBack 
+          v-bind:chordReference="chordReference"
+          v-bind:chordProgression="chordProgression()"
+          v-bind:bpm="$store.state.currentChart.details.tempo">
+        </PlayBack>
         <router-link :to="$route.params.title + `/edit`">
         <button>
           Edit Chart
@@ -30,8 +34,8 @@
       </span>
       <span>
         Chord Font:
-        <select v-model="chart.style.font" v-on:change="updateFont(chart.style.font)">
-          <option v-bind:key="font.id" v-for="font in fonts" v-bind:value="font">{{font}}
+        <select v-model="chart.style.font" v-on:change="updateFont($event.target.value)">
+          <option v-bind:value="chart.style.font">{{chart.style.font}}
           </option>
         </select>
       </span>
@@ -62,9 +66,22 @@
     </section>
 
     <section id="chart-body" v-bind:class="`chart__body grid__col-${mpl}`">
-      <div
+      <div class="chart__measure"
       v-bind:key="measure.id"
       v-for="measure in measures">
+      <div v-if="!chart.content.bars[measures.indexOf(measure)].start.repeat" class="bar bar-start">
+      </div>
+      <div v-else class="bar bar-start start-repeat">
+        <div class="bar bar-start start-line">
+        </div>
+        <div class="bar bar-start dots__container">
+          <p class="dot">
+          </p>
+          <p class="dot">
+          </p>
+        </div>
+      </div>
+      <div class="measure__content">
         <p class="chart__measure-beats">
         <span class="beat"
         v-bind:key="beat.id"
@@ -79,7 +96,34 @@
           v-for="lyric in measure.lyrics" v-bind:placeholder="lyric">
         </p>
       </div>
+      <div v-if="!chart.content.bars[measures.indexOf(measure)].end.repeat" class="bar bar-end">
+      </div>
+      <div v-else class="bar bar-end end-repeat">
+        <div class="bar bar-end end-line">
+        </div>
+        <div class="bar bar-end dots__container">
+          <p class="dot">
+          </p>
+          <p class="dot">
+          </p>
+        </div>
+      </div>
+      </div>
     </section>
+    <div class="chordboard__mini">
+      <div class="caret__container">
+        <span>Chordboard: {{this.$store.state.currentChordBoard}}</span>
+        <div class="caret__background">
+        <div v-if="chordBoardMiniHidden" class="caret__up" v-on:click="chordBoardMiniToggle">
+        </div>
+        <div v-else class="caret__down" v-on:click="chordBoardMiniToggle">
+        </div>
+        </div>
+      </div>
+      <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
+        <ChordBoard ref="chordboard" @chordReference="loadChordReference"></ChordBoard>
+      </div>
+    </div>
 
     </div>
   </div>
@@ -88,6 +132,7 @@
 <script>
 import { db } from '../main.js'
 import PlayBack from './PlayBack.vue'
+import ChordBoard from './ChordBoard.vue'
 
 export default {
   name: 'ChordChart',
@@ -96,22 +141,22 @@ export default {
   },
   components: {
     PlayBack,
+    ChordBoard,
   },
   updated() {
-    // SAVED METHOD TO UPDATE PLACEHOLDER SIZE
-    // let inputs = document.getElementsByTagName('input')
-    // inputs.forEach(el => {
-    //   let elSize = el.getAttribute('placeholder').length;
-    //   let beatSize = this.chart.measuresPerLine;
-    //   el.setAttribute('size', el.getAttribute('placeholder').length + 1);
-    // })
-          document.getElementsByClassName('chart__measure-lyrics').forEach(measure => {
-            measure.classList.add('grid__col-' + this.chart.details.timeSig.upper.toString())
-          })
-
+    document.getElementsByClassName('chart__measure-lyrics').forEach(measure => {
+      measure.classList.add('grid__col-' + this.chart.details.timeSig.upper.toString())
+    })
+  },
+  computed: {
+    chordProgression() {
+      return this.buildChordProgression
+    },
   },
   data() {
     return {
+      chordReference: {},
+      chordBoardMiniHidden: this.$store.state.miniHidden,
       mpl: 4,
       measures: [],
       font: 'Alata',
@@ -126,8 +171,6 @@ export default {
     db.collection('chordcharts').doc(route).get()
     .then(response => {
       const chart = response.data();
-      window.console.log('response: ', response);
-      window.console.log(response.data());
       if (!chart) {
         this.chart.error = true
       } else {
@@ -137,13 +180,50 @@ export default {
         this.populateMeasures();
         this.$store.commit('loadChart', chart);
       }
-      window.console.log('chart: ', chart);
     })
     .catch(error => {
       window.console.log('Error: ', error)
     })
   },
+
   methods: {
+    buildChordProgression() {
+      let chordProgression = [];
+      let bars = this.$store.state.currentChart.content.bars;
+      let beats = this.$store.state.currentChart.content.beats;
+      let timeSig = this.$store.state.currentChart.details.timeSig.upper;
+      let a = 0;
+      for (let i = 0; i < bars.length; i++) {
+        if (bars[i].start.repeat) {
+        let startRepeat = i * timeSig;
+        if (startRepeat != 0) startRepeat -= 1;
+          for (let j = i; j < bars.length; j++) {
+            if (bars[j].end.repeat) {
+              let endRepeat = (j + 1 ) * timeSig - 1;
+              for (let b = startRepeat; b <= endRepeat; b++){
+              chordProgression.push(beats[b])
+              a++;
+              }
+              for (let b = startRepeat; b <= endRepeat; b++){
+              chordProgression.push(beats[b])
+              }
+            } 
+          } 
+        } else {
+          for (let k = 0; k < timeSig; k++) {
+            if (beats[a]) chordProgression.push(beats[a]);
+            a++;
+          }
+        }
+      }
+      return chordProgression;
+    },
+
+    chordBoardMiniToggle() {
+      let value = this.chordBoardMiniHidden;
+      this.$store.commit('toggleMiniChordBoard', !value)
+      this.chordBoardMiniHidden = this.$store.state.miniHidden;
+    },
     deleteChart() {
       const deleteDoc = window.confirm(`Are you sure you want to delete ${this.$route.params.title}?`);
       if (deleteDoc === true) {
@@ -158,7 +238,8 @@ export default {
           font: newFont
         }
       }, {merge: true});
-      window.console.log("ran updateFont with font ", newFont);
+      let updates = {keys: ['style', 'font'], value: newFont};
+      this.$store.commit('editChart', updates);
     },
     updateMeasuresPerLine(event) {
       let etv = event.target.value;
@@ -173,10 +254,8 @@ export default {
       this.chart.style.measuresPerLine = etv;
     },
 
-  // this should be a cloud function
     populateMeasures() {
       const beatsPerMeasure = this.chart.details.timeSig.upper;
-      window.console.log('in PopulateMeasures, bpm is ', beatsPerMeasure)
       let lyricIndex = 0;
       for (let i=0; i<this.chart.content.beats.length; i++) {
         let measure = {};
@@ -211,21 +290,17 @@ export default {
           if (currentBeat === '') {
             measure.beats[i-1] = '/';
             currentBeat = measure.beats[i];
-            window.console.log('Successfully rendered empty beat');
           } else if (currentBeat === measure.beats[i]) {
             measure.beats[i] = ''
-            window.console.log('Successfully rendered duplicate beat');
-
           } else {
             currentBeat = measure.beats[i]
           }
         }
       });
+    },
+    loadChordReference(chords) {
+      this.chordReference = chords;
     }
   }
 }
 </script>
-
-<style>
-
-</style>

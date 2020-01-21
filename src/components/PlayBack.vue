@@ -1,9 +1,7 @@
 <template>
-  <div>
     <button v-on:click="playSong">
-      Play
+      Play Song
     </button>
-  </div>
 </template>
 
 <script>
@@ -12,23 +10,29 @@ import Tone from 'tone'
 export default {
   name: 'PlayBack',  
   props: {
-    chordProgression: Array
+    chordReference: Object,
+    chordProgression: Array,
+    bpm: String,
   },
-  mounted() {
-    window.console.log('PlayBack mounted');
+  data() {
+    return {
+      i: 1
+    }
   },
+
   methods: {
     playSong() {
-      let synth = new Tone.Synth().toMaster();
-      let bpm = 60;
-      let second = 60/bpm;
-      let i = 1;
-      this.chordProgression.forEach(note => {
-        synth.triggerAttackRelease(`${note}4`, '4n', i);
-        window.console.log(note);
-        i += second;
-        window.console.log('i = ', i);
+      let synth = new Tone.PolySynth().toMaster();
+      let second = 60/this.bpm;
+      this.chordProgression.forEach(chord => {
+        if ( this.chordReference[chord]) {
+          synth.triggerAttackRelease(this.chordReference[chord], '4n', this.i);
+          this.i += second;
+        } else if ( chord === "" || chord === "~") {
+          this.i += second;
+        }
       })
+      this.i += 1;
 
     },
   }

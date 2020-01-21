@@ -2,13 +2,10 @@
   <div id="editkeyboard">
     Edit ChordBoard: 
     <input class="chordboard__name" v-bind:placeholder="chordBoardToEdit" v-on:change="updateChordBoardName($event.target.value)">
-    <button v-on:click="saveChordBoard">
-      Save {{this.chordBoardName}}
-      </button>
 
     <div class="simple-keyboard">
-<div class="simple-keyboard hg-theme-default hg-layout-default  ">
-  <div class="hg-row">
+    <div class="simple-keyboard hg-theme-default hg-layout-default  ">
+    <div class="hg-row">
     
     <div 
     v-bind:key="key.id" 
@@ -19,52 +16,54 @@
 
     </div>
     
-<div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r0b10">
-  <span>
+    <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r0b10">
+    <span>
     
-  </span>
+    </span>
     </div>
     </div>
     
     <div class="hg-row">
-          <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
+      <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
+      <span>
     
-  </span>
-    </div>
-    <div 
+      </span>
+      </div>
+      <div 
       v-bind:key="key.id" 
       v-for="key in keysWithIndex.slice(10, 19)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b0">
-    <input 
-    v-bind:placeholder="key.key"
-    v-on:change="addChordAtIndex($event.target.value, key.id)">
-
-    </div>
-    <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b10">
-  <span>
+      <input 
+      v-bind:placeholder="key.key"
+      v-on:change="addChordAtIndex($event.target.value, key.id)">
+      </div>
+      <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r1b10">
+      <span>
     
-  </span>
-    </div></div>
+      </span>
+      </div>
+    </div>
     
     <div class="hg-row">
     <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
-    
-  </span>
+    <span>
+
+    </span>
     </div>
     
     <div 
-        v-bind:key="key.id" 
-        v-for="key in keysWithIndex.slice(19, 26)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b0">
-    <input
-    v-bind:placeholder="key.key"
-    v-on:change="addChordAtIndex($event.target.value, key.id)">
+      v-bind:key="key.id" 
+      v-for="key in keysWithIndex.slice(19, 26)" class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b0">
+      <input
+      v-bind:placeholder="key.key"
+      v-on:change="addChordAtIndex($event.target.value, key.id)">
     </div>
     <div class="hg-button hg-standardBtn" data-skbtn="" data-skbtnuid="default-r2b8">
-  <span>
+    <span>
     
-  </span>
-    </div></div></div>
+    </span>
+    </div>
+    </div>
+    </div>
     </div>
   </div>  
 
@@ -96,10 +95,6 @@ data() {
   }
 },
 mounted() {
-  window.console.log('EditChordBoardForm mounted');
-  window.console.log('ChordBoard name: ', this.chordBoardName);
-  window.console.log('ChordBoard to edit: ', this.chordBoardToEdit);
-  window.console.log('chords: ', this.chords);
   this.keys.forEach((el, i) => { this.keysWithIndex.push({id: i, key: el})});
   this.updateChordBoardName(this.chordBoardToEdit);
   db.collection('chordboards').doc(`${this.chordBoardToEdit}`).get().then(
@@ -107,33 +102,40 @@ mounted() {
       let data = response.data();
       if (data.keys) {
         this.chords = data.keys;
-        window.console.log('chords updated with keys');
         data.keys.forEach(el => {
           this.keys[this.keys.indexOf(el.key)] = el.chord;
         })
+      } else {
+        for (let i = 0; i < this.keys.length; i++) {
+        this.chords[i].key = this.keys[i];
+        }
       }
     }
   );
 },
 methods: {
   addChordAtIndex(value, i) {
-    window.console.log('index: ', i);
     this.chords[i] = {key: this.keys[i], chord: value}
-    window.console.log(this.chords);
   },
   saveChordBoard() {
     let chords = this.chords;
+    let self = this;
+    let chordBoardNames = this.$store.state.chordBoardNames;
+    if (!chordBoardNames.includes(this.chordBoardName)){
+      chordBoardNames.push(this.chordBoardName);
+    }
     db.collection('chordboards').doc(this.chordBoardName).set({
       keys: chords
-    }, {merge: true});
-    window.console.log('ChordBoard saved: ', this.chordBoardName);
-    this.$store.commit('updateChordBoard', [this.chordBoardName, chords])
+    }, {merge: true}).then(
+      function() {
+        self.$store.commit('updateChordBoard', [self.chordBoardName, chords])
+        self.$store.commit('addChordBoardName', chordBoardNames);
+        // window.alert('ChordBoard saved: ', self.chordBoardName);
+      }      
+    ).catch(error => window.console.log(error));
   },
   updateChordBoardName(name) {
-    window.console.log("ChordBoard name: ", name);
     this.$store.commit('updateChordBoard', ['name', name])
-    window.console.log("ChordBoard name in state: ", this.$store.state.currentChordBoard);
-    window.console.log('ChordBoard name in window: ', this.chordBoardName);
   }
 }
 }

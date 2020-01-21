@@ -13,12 +13,18 @@
         </button>
       </span>
       <span class="chart__options-lyrics">
-        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput">Add Lyrics</button>
-        <textarea v-if="lyricInputVisible" class="chart__options-lyrics-text" 
+        <button class="lyrics-input-toggle" v-on:click="viewLyricsInput(); viewLyricsModal()">Add Lyrics</button>
+        <textarea v-if="lyricInputVisible" 
+        class="chart__options-lyrics-text" 
         v-model="rawLyrics"
         v-on:change="addLyrics($event)">
         </textarea>
       </span>
+
+      <div class="lyrics-modal" 
+      v-if="lyricModalVisible" 
+      v-on:click="viewLyricsModal(); viewLyricsInput()">
+      </div>
 
       <span>
         Measures per line:
@@ -59,7 +65,7 @@
     </nav>
     </div>
     
-    <div id="chart" class="chart" v-bind:style="`font-family: ${chart.style.font}`">
+    <div id="chart" class="chart" v-bind:style="`font-family: '${currentFont}'`">
       <header class="chart__header">
         <span class="chart__title">
           <input type="text" v-bind:placeholder="chart.details.title" v-on:change="addChartState($event, ['details', 'title'])">
@@ -146,21 +152,49 @@
         v-bind:key="measure.id"
         v-for="measure in measures"
         >
-        <p class="chart__measure-bar measure-start" v-on:click="editBar(measures.indexOf(measure), 'start')">
-          ~
-          <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start'] && bars[measures.indexOf(measure)]['start']['repeat']">
-            !
-          </span>
-        </p>
+        <div v-if="chart.content && chart.content.bars[measures.indexOf(measure)] && chart.content.bars[measures.indexOf(measure)].start.repeat" class="bar bar-start start-repeat">
+          <div class="bar bar-start start-line">
+          </div>
+          <div class="bar bar-start dots__container">
+            <p class="dot">
+            </p>
+            <p class="dot">
+            </p>
+          </div>
+        </div>
+        <div v-else class="bar bar-start">
+        </div>
+
+
+        <div class="measure__content">
+          <div class="barbtn__container">
+          <p class="chart__measure-bar barbtn" v-on:click="editBar(measures.indexOf(measure), 'start')">
+            <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['start']['repeat']">
+              remove repeat
+            </span>
+            <span v-else-if="bars && bars[measures.indexOf(measure)]">
+              start repeat
+            </span>
+          </p>
+
+          <p class="chart__measure-bar barbtn" v-on:click="editBar(measures.indexOf(measure), 'end')">
+            <span v-if="bars && bars[measures.indexOf(measure)] && bars[measures.indexOf(measure)]['end']['repeat']">
+              remove repeat
+            </span>
+            <span v-else-if="bars && bars[measures.indexOf(measure)]">
+              end repeat
+            </span>
+          </p>
+          </div>
 
           <p class="chart__measure-beats">
-
-          <span class="beat" 
-            v-bind:key="beat.id"
-            v-for="beat in measure">
-            <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
-          </span>
+            <span class="beat" 
+              v-bind:key="beat.id"
+              v-for="beat in measure">
+              <Beat v-bind:beat="beat" :edit="editBeat"></Beat>
+            </span>
           </p>
+
           <p class="chart__measure-lyrics">
             <span v-if="lyrics">
               {{lyrics[measures.indexOf(measure)]}}
@@ -168,6 +202,21 @@
             <input v-else class="lyric"
             type="text" placeholder="lyrics">
           </p>
+
+        </div>
+
+        <div v-if="chart.content && chart.content.bars[measures.indexOf(measure)] && chart.content.bars[measures.indexOf(measure)].end.repeat" class="bar bar-end end-repeat">
+          <div class="bar bar-end end-line">
+          </div>
+          <div class="bar bar-end dots__container">
+            <p class="dot">
+            </p>
+            <p class="dot">
+            </p>
+          </div>
+        </div>
+        <div v-else class="bar bar-end">
+        </div>
         </div>
       </section>
       </div>
@@ -175,7 +224,20 @@
   <!-- <button v-on:click="addNewChart">
     ADD NEW CHART
   </button> -->
-  <ChordBoard ref="chordboard" @beat="recordBeat"></ChordBoard>
+  <div class="chordboard__mini">
+      <div class="caret__container">
+        <span>Chordboard: {{this.$store.state.currentChordBoard}}</span>
+        <div class="caret__background">
+        <div v-if="chordBoardMiniHidden" class="caret__up" v-on:click="chordBoardMiniToggle">
+        </div>
+        <div v-else class="caret__down" v-on:click="chordBoardMiniToggle">
+        </div>
+        </div>
+      </div>
+      <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
+  <ChordBoard ref="chordboard" v-bind:recording="recording" v-bind:nested="true" @beat="recordBeat"></ChordBoard>
+  </div>
+  </div>
   </div>
 
 </template>
@@ -202,12 +264,14 @@ export default {
       // can't access nested elements with v-model
       //TODO: fix publicDomain & timeSig
       lyricInputVisible: false,
+      lyricModalVisible: false,
+      chordBoardMiniHidden: this.$store.state.miniHidden,
       publicDomain: false,
       timeSig: [4, 4],
       editingBeat: false,
       rawLyrics: '',
       measureStyle: {},
-      currentFont: '',
+      currentFont: 'Arial',
       mpl: 8,
       chart: {
         style: {
@@ -263,7 +327,6 @@ export default {
     });
   },
   mounted(){
-    window.console.log('PARAMS: ', this.$route.params)
     if(!this.$route.params.title) {
       this.clearState();
     } else {
@@ -275,18 +338,16 @@ export default {
       this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars});
     },
     addBeat(beat) {
-      window.console.log('addBeat');
       this.beats.push(beat);
       let i = this.beats.length - 1;
       this.addBeatsToMeasures(beat, i)
     },
     addBeatsToMeasures(beat, id) {
       let i = this.measures.length - 1;
-      window.console.log(this.bars)
-      this.measures[i].push({chord: beat, id: id} );
       if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
         this.measures.push([]);
-        window.console.log('bars: ', this.bars);
+        i++;
+      } else if (this.measures[i].length === 1) {
         let newBar = {
           end: {
           repeat: false,
@@ -298,9 +359,10 @@ export default {
           }
         };
         this.bars.push(newBar);
-      this.addBars();
-
+        this.addBars();
       }
+      this.measures[i].push({chord: beat, id: id} );
+
     },
     addLyrics(event) {
       let rawLyrics = event.target.value;
@@ -308,32 +370,27 @@ export default {
       let lines = event.target.value.split('\n');
       this.lyrics = lines;
       this.$store.commit('editChart', {keys: ['content', 'lyrics'], value: lines})
-      window.console.log(lines)
     },
     editBar(index, position) {
-      this.bars[index][position]['repeat'] = true;
+      this.bars[index][position]['repeat'] = !this.bars[index][position]['repeat'];
       this.$store.commit('editChart', {keys: ['content', 'bars'], value: this.bars})
-      window.console.log(index);
-      window.console.log(position);
     },
     addTimeSig(event, fields) {
       const top = parseInt(event.target.value[0]);
       const bottom = parseInt(event.target.value[2]);
-      window.console.log(event.target.value);
       const timeSig = { target: { value: {upper: top, lower: bottom} } }; 
       this.addChartState(timeSig, fields)
     },
     addChartState(event, fields) {
       let updates = {keys: fields, value: event.target.value}
       this.$store.commit('editChart', updates);
+      
     },
     addNewChart() {
       const chart = this.$store.state.currentChart;
-      window.console.log(chart);
       db.collection('chordcharts').doc(chart.details.title).set(
         chart
       );
-      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
     },
     clearState() {
       const currentChart = {
@@ -357,32 +414,29 @@ export default {
       this.$store.commit('loadChart', currentChart);
       this.loadChart();
     },
+    chordBoardMiniToggle() {
+      this.$store.commit('toggleMiniChordBoard', !this.chordBoardMiniHidden);
+      this.chordBoardMiniHidden = this.$store.state.miniHidden;
+
+    },
     editBeat(chord, id) {
-      window.console.log('editing beat with id ', id);
       this.measures.forEach(measure => {
         measure.forEach(beat => {
-          window.console.log('beat id: ', beat.id)
           if (beat.id === id) {
             beat.chord = chord
-            window.console.log('editing measure ', measure)
-            window.console.log('editing beat ', beat)
           }
         })
       })
       this.beats[id] = chord;
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats}, {merge: false});
-      window.console.log('new beats: ', this.$store.state.currentChart.content.beats[0]);
     },
     loadChart() {
       if (this.$store.state.currentChart) {
         let currentChart = this.$store.state.currentChart;
-        window.console.log('current chart: ', currentChart);
         this.title = currentChart.details.title;
         this.mpl = currentChart.style.measuresPerLine;
         this.beats = currentChart.content.beats;
-        window.console.log('beats: ', this.beats);
         this.bars = currentChart.content.bars;
-        window.console.log('bars: ', this.bars);
         this.lyrics = currentChart.content.lyrics;
         currentChart.content.lyrics.forEach(line => this.rawLyrics += `${line}\n`);
         this.currentFont = currentChart.style.font;
@@ -391,65 +445,59 @@ export default {
         {
           this.beats.forEach((beat, i) => this.addBeatsToMeasures(beat, i));
         }
-        window.console.log('NewChordChart: mounted chart: ', currentChart);
       }
     },
     playChord(e) {
-      window.console.log('playChord: this.beats = ', this.beats);
       if (e.code === "Space") {
-        window.console.log('its a space!!!!');
         this.recordBeat(this.rest);
         return
       }
+      if (e.code === 'BracketLeft') {
+        this.editBar(this.bars.length -1, 'start')
+      } else if (e.code === 'BracketRight') {
+        this.editBar(this.bars.length -1, 'end')
+      }
       if (e.code === "Backspace") {
-        window.console.log('its a deleeeeete!!!!');
         this.removeBeat(this.beats.length - 1)
       }
       this.$refs.chordboard.callChord(e)
-      // const note = e.key.toLowerCase();
-      // this.charToNote.forEach((char) => {
-      //   if (char.hasOwnProperty(note)) {
-      //     window.console.log('char has own property of ', note);
-      //     const synth = new Tone.PolySynth(3, Tone.Synth).toMaster();
-      //     synth.triggerAttackRelease(char[note], "8n");  
-      //     window.console.log("successfully played chord ", char.chord);
-      //     this.chordProgression.push(char.chord);
-      //     window.console.log(this.chordProgression);
-      // this.recordBeat(char.chord)
-      //   }
-      // });
+
     },
     recordBeat(beat) {
       this.addBeat(beat);
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
     },
     removeBeat(index) {
-      window.console.log('removing beat at index ', index);
       this.measures.forEach(measure => {
         measure.forEach(beat => {
           if (beat.id === index) {
-            measure.splice(measure.indexOf(beat), 1)
+            measure.splice(measure.indexOf(beat), 1);
+            if (measure.length === 0) {
+              this.removeMeasure(this.measures.indexOf(measure));
+            }
           }
         })
       })
       this.beats.splice(index, 1);
       this.$store.commit('editChart', {keys: ['content', 'beats'], value: this.beats});
-      // this.measures[-1].splice(-1, 1)
+    },
+    removeMeasure(index) {
+      this.measures.splice(index, 1);
+      this.bars.splice(index, 1);
     },
     saveChart() {
       const newTitle = this.$store.state.currentChart.details.title;
       if (this.$store.state.chartTitles.includes(newTitle)) {
-        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nOverwrite existing chart ${newTitle}?`);
+        let titleConfirmation = window.confirm(`Chart with title ${newTitle} already exists.\nUpdate existing chart ${newTitle}?`);
         if (!titleConfirmation) return;
       }
-      window.console.log('successfully saved chart');
       const chart = this.$store.state.currentChart;
-      window.console.log(chart);
-      this.$store.commit('addTitle', this.$route.params.title);
       db.collection('chordcharts').doc(chart.details.title).set(
         {content: chart.content, details: chart.details, style: chart.style}, {merge: true}
       );
-      window.console.log('successfully added chart ', this.$store.state.currentChart.details.title)
+      if (!this.$store.state.chartTitles.includes(newTitle)){
+      this.$store.commit('addTitle', newTitle);
+      }
     },
     startRecording() {
       this.recording = true;
@@ -459,8 +507,6 @@ export default {
     },
     updateFont(font) {
       document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
-      window.console.log("ran updateFont with font ", font);
-      window.console.log(document.getElementById('chart').fontFamily);
     },
     updateMeasuresPerLine(event) {
       let etv = event.target.value;
@@ -478,12 +524,14 @@ export default {
       this.recording = false;
       this.lyricInputVisible = !this.lyricInputVisible;
     },
+    viewLyricsModal() {
+      this.lyricModalVisible = !this.lyricModalVisible;
+    },
     writeChordProgression() {
       let submittedChordProgression = db.collection('chords').doc(`${this.boardname}`)
       submittedChordProgression.set({
         chords: this.chordProgression,
       }, {merge: true}).then(() => {
-        window.console.log('Added chord prog for ', submittedChordProgression.id)
       })
     }
   }
