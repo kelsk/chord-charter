@@ -105,6 +105,10 @@ mounted() {
         data.keys.forEach(el => {
           this.keys[this.keys.indexOf(el.key)] = el.chord;
         })
+      } else {
+        for (let i = 0; i < this.keys.length; i++) {
+        this.chords[i].key = this.keys[i];
+        }
       }
     }
   );
@@ -126,7 +130,7 @@ methods: {
       function() {
         self.$store.commit('updateChordBoard', [self.chordBoardName, chords])
         self.$store.commit('addChordBoardName', chordBoardNames);
-        window.alert('ChordBoard saved: ', self.chordBoardName);
+        // window.alert('ChordBoard saved: ', self.chordBoardName);
       }      
     ).catch(error => window.console.log(error));
   },

@@ -1,6 +1,12 @@
 <template>
 
   <div class="chordboard__main">
+    <!-- <button v-on:click="playKeyboard" v-if="!playingKeyboard">
+      Play Chordboard with Keyboard
+    </button>
+    <button v-on:click="playKeyboard" v-if="playingKeyboard">
+      Stop Playing Chordboard
+    </button> -->
   <div id="simple-keyboard-wrapper" class="chordboard__wrapper">
   <div class="simple-keyboard">
   </div>
@@ -35,18 +41,11 @@ export default {
       boardname: this.$store.state.currentChordBoard,
       boardLayout: [],
       recording: false,
+      playingKeyboard: false,
       toggleBoardText: "View Qwerty Keys",
       charToNote: [],
       chordProgression: []
     }
-  },
-
-  beforeDestroy() {
-    window.removeEventListener("keypress", this.playKeyboard);
-  },
-
-  created(){
-    window.addEventListener("keypress", this.playKeyboard);
   },
 
   mounted() {
@@ -73,11 +72,18 @@ export default {
     this.loadChordBoard(this.$store.state.currentChordBoard)
   },
 
-  methods: {
-    playKeyboard(e) {
-      if (this.boardname != 'qwerty' && (this.recording || !this.nested)) {
-      this.callChord(e);
+  created() {
+    // future feature
+    let self = this;
+    window.addEventListener("keypress", e => {
+      if (self.boardname != 'qwerty' && self.playingKeyboard) {
+        self.callChord(e);
       }
+    })
+  },
+  methods: {
+    playKeyboard() {
+      this.playingKeyboard = !this.playingKeyboard;
     },
     startRecording() {
       this.recording = true;
@@ -238,7 +244,7 @@ export default {
       let notes = this.noteData.notes;
       let rootIndex = this.noteData.notes.indexOf(root);
       if (!notes[rootIndex]) {
-        window.alert(`Couldn't play the chord with note ${root}`);
+        this.error = `Couldn't play the chord with note ${root}`;
         return
       }
       const getIndex = (a, b) => {

@@ -24,7 +24,15 @@
       <ChartLibrary>
       </ChartLibrary> 
       <div class="login__welcome">
-        Welcome to Chord Charter, {{this.$store.state.currentUser.data.displayName}}
+        Chord Charter
+        <div class="login__links">
+        <router-link :to="'/chordboards'">
+        chordboards
+        </router-link>
+        <router-link :to="'/charts'">
+        charts
+        </router-link>
+        </div>
       </div>
     </div>
   </div>

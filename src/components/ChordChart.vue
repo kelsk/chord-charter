@@ -182,7 +182,7 @@ export default {
       }
     })
     .catch(error => {
-      window.alert('Error: ', error)
+      window.console.log('Error: ', error)
     })
   },
 

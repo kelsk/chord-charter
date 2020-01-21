@@ -30,7 +30,16 @@ body a:hover {
 }
 .login__welcome {
   font-family: 'Desyrel';
-  font-size: 2rem;
+  font-size: 4rem;
+  text-align: center;
+  width: 75%;
+  margin-top: 25px;
+}
+.login__links {
+  margin-top: 25px;
+  font-size: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 .login__form {
   margin: 2rem;
@@ -581,4 +590,7 @@ select:hover {
   margin: 20px;
   font-size: 0.9rem;
   background-color: white;
+}
+.beat {
+  display: inline-block;
 }

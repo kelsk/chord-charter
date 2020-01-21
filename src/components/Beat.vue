@@ -1,8 +1,10 @@
 <template>
   <div class="beat" v-on:click="editBeat">
-    <input v-if="editing" v-bind:placeholder="beat.chord"
-    v-on:change="saveBeat($event.target.value)">
+    <input class="beat__input" v-if="editing" v-bind:placeholder="beat.chord"
+    v-on:change="saveBeat($event.target.value)"/>
+    <span v-else>
     {{beat.chord}}
+    </span>
   </div>
 </template>
 
@@ -38,11 +40,14 @@ export default {
   padding: 0;
   text-align: left;
 }
-input {
-  font-size: 2rem;
-  max-width: 20%;
+.beat__input {
+  font-size: 1.5rem;
+  display: inline-block;
+  max-width: 40px;
+  overflow: visible;
   text-align: left;
   margin: 0;
   border: 0;
+  padding: 0;
 }
 </style>

@@ -30,8 +30,6 @@ export default {
           this.i += second;
         } else if ( chord === "" || chord === "~") {
           this.i += second;
-        } else {
-          window.alert(`Could not play chord ${chord}`)
         }
       })
       this.i += 1;
