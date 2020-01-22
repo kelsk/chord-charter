@@ -53,7 +53,7 @@ export default {
     logoutUser() {
       let self = this;
       firebase.auth().signOut().then(function(){
-        window.alert('Signout successful');
+        // window.alert('Signout successful');
         self.$store.commit('setCurrentUserData', null);
         self.$router.push('/');
       })

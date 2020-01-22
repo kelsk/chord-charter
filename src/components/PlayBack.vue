@@ -14,26 +14,25 @@ export default {
     chordProgression: Array,
     bpm: String,
   },
-  data() {
-    return {
-      i: 1
-    }
-  },
 
+  mounted() {
+    Tone.start();
+  },
   methods: {
     playSong() {
+      let now = Tone.now()
+      let i = now + 0.5;
       let synth = new Tone.PolySynth().toMaster();
       let second = 60/this.bpm;
       this.chordProgression.forEach(chord => {
         if ( this.chordReference[chord]) {
-          synth.triggerAttackRelease(this.chordReference[chord], '4n', this.i);
-          this.i += second;
+          synth.triggerAttackRelease(this.chordReference[chord], '4n', i);
+          i += second;
         } else if ( chord === "" || chord === "~") {
-          this.i += second;
+          i += second;
         }
       })
-      this.i += 1;
-
+      i += 1;
     },
   }
 }

@@ -1,12 +1,14 @@
 <template>
 
   <div class="chordboard__main">
-    <!-- <button v-on:click="playKeyboard" v-if="!playingKeyboard">
+    <div v-if="!nested">
+    <button v-on:click="playKeyboard" v-if="!playingKeyboard">
       Play Chordboard with Keyboard
     </button>
     <button v-on:click="playKeyboard" v-if="playingKeyboard">
       Stop Playing Chordboard
-    </button> -->
+    </button>
+    </div>
   <div id="simple-keyboard-wrapper" class="chordboard__wrapper">
   <div class="simple-keyboard">
   </div>
@@ -72,18 +74,23 @@ export default {
     this.loadChordBoard(this.$store.state.currentChordBoard)
   },
 
+  beforeDestroy() {
+    this.playingKeyboard = false;
+  },
   created() {
     // future feature
     let self = this;
     window.addEventListener("keypress", e => {
-      if (self.boardname != 'qwerty' && self.playingKeyboard) {
+      if (self.boardname != 'qwerty' && !self.nested && self.playingKeyboard) {
         self.callChord(e);
       }
-    })
+    });
+    this.recording = this.$store.state.recording;
   },
   methods: {
     playKeyboard() {
       this.playingKeyboard = !this.playingKeyboard;
+
     },
     startRecording() {
       this.recording = true;
@@ -99,7 +106,10 @@ export default {
           layoutPattern = doc.data().qwerty;
           
         } else {
-          let keys = doc.data().keys;
+          let keys = [];
+          if (doc.data().keys)
+          {
+          keys = doc.data().keys;
           this.keys = doc.data().keys;
           let row1 = keys.splice(0, 10);
           let rowString = '';
@@ -119,6 +129,9 @@ export default {
             rowString += item.chord + ' ';
           })
           layoutPattern.push(rowString);
+          } else {
+            window.console.log('Error: chordboard has no chords');
+          }
         }
 
         this.boardLayout = layoutPattern
@@ -147,6 +160,7 @@ export default {
     },
 
     callChord(e) {
+
       const letter = e.key.toLowerCase();
         this.keys.forEach(i => {
           if (i.key === letter) {

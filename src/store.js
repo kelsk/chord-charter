@@ -35,6 +35,7 @@ const store = new Vuex.Store({
       data: null
     },
     miniHidden: false,
+    recording: false,
   },
   getters: {
     currentUser(state) {
@@ -53,6 +54,9 @@ const store = new Vuex.Store({
     },
     toggleLayout(state, n) {
       state.currentChordBoardLayout = n;
+    },
+    toggleRecording(state, bool) {
+      state.recording = bool
     },
     updateChordBoard(state, n) {
       if (n[0] === 'name') {

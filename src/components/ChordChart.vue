@@ -121,7 +121,7 @@
         </div>
       </div>
       <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
-        <ChordBoard ref="chordboard" @chordReference="loadChordReference"></ChordBoard>
+        <ChordBoard ref="chordboard" v-bind:nested="true" @chordReference="loadChordReference"></ChordBoard>
       </div>
     </div>
 
