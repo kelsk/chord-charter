@@ -1,5 +1,8 @@
 <template>
   <div class="login">
+    <div v-if="smallScreen" class="info mobile-alert">
+      Chord Charter works best on a larger screen.
+    </div>
     <div v-if="!this.$store.state.currentUser.data" class="login__form">
       Please log in 
       <form id="login" v-on:submit.prevent="submitForm">
@@ -52,8 +55,17 @@ export default {
         email: '',
         name: '',
         password: '',
-      }
+      },
+      width: window.innerWidth,
     }
+  },
+  computed: {
+      smallScreen() {
+        return this.width <= 550
+      }
+  },
+  created() {
+    window.addEventListener('resize', ()=>{this.width = window.innerWidth})
   },
   methods: {
     submitForm() {

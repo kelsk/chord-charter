@@ -1,6 +1,6 @@
 <template>
+
   <div>
-    <!-- <link ref="../assets/DESYREL_.ttf" rel="stylesheet"/> -->
     <main class="chart__container">
     <ChartLibrary>
     </ChartLibrary>
@@ -37,13 +37,13 @@
       Features to look for in the future:
       <ul>
         <li>
-          Creating charts via MIDI files
+          Creating charts by uploading MIDI files
         </li>
         <li>
-          Organizing charts with tags
+          Organizing charts with tags and folders
         </li>
         <li>
-          Printer-friendly PDFs of your charts
+          Printer-friendly PDFs and shareable links of your charts
         </li>
         <li>
           Additional music notation components
