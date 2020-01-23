@@ -90,10 +90,16 @@
         </span>
         </p>
         <p class="chart__measure-lyrics">
-          <input class="lyric"
+          <span class="lyric"
           v-bind:key="lyric.id"
           type="text"
           v-for="lyric in measure.lyrics" v-bind:placeholder="lyric">
+          <span v-if="lyric != ''">
+            {{lyric}}
+          </span>
+          <span v-else>
+            </span> 
+          </span>
         </p>
       </div>
       <div v-if="!chart.content.bars[measures.indexOf(measure)].end.repeat" class="bar bar-end">

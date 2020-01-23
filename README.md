@@ -49,4 +49,6 @@ export const db = firebase.firestore()
 Visit [chord-charter.firebaseapp.com](https://chord-charter.firebaseapp.com/) to use the live app.
 
 ## Acknowledgements
-
+- [Simple Keyboard](https://github.com/hodgef/simple-keyboard) is a flexible, beautiful keyboard that's easy to implement
+- [LogRocket](https://blog.logrocket.com/vue-firebase-authentication/) has an excellent tutorial about using Vue to integrate Firebase's user authentication
+- [Desyrel](https://www.dafont.com/desyrel.font) font
