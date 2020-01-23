@@ -90,10 +90,16 @@
         </span>
         </p>
         <p class="chart__measure-lyrics">
-          <input class="lyric"
+          <span class="lyric"
           v-bind:key="lyric.id"
           type="text"
           v-for="lyric in measure.lyrics" v-bind:placeholder="lyric">
+          <span v-if="lyric != ''">
+            {{lyric}}
+          </span>
+          <span v-else>
+            </span> 
+          </span>
         </p>
       </div>
       <div v-if="!chart.content.bars[measures.indexOf(measure)].end.repeat" class="bar bar-end">
@@ -121,7 +127,7 @@
         </div>
       </div>
       <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
-        <ChordBoard ref="chordboard" @chordReference="loadChordReference"></ChordBoard>
+        <ChordBoard ref="chordboard" v-bind:nested="true" @chordReference="loadChordReference"></ChordBoard>
       </div>
     </div>
 
@@ -193,22 +199,26 @@ export default {
       let beats = this.$store.state.currentChart.content.beats;
       let timeSig = this.$store.state.currentChart.details.timeSig.upper;
       let a = 0;
+      let index = 0;
       for (let i = 0; i < bars.length; i++) {
-        if (bars[i].start.repeat) {
-        let startRepeat = i * timeSig;
+        if (bars[index].start.repeat) {
+        let startRepeat = index * timeSig;
         if (startRepeat != 0) startRepeat -= 1;
-          for (let j = i; j < bars.length; j++) {
-            if (bars[j].end.repeat) {
-              let endRepeat = (j + 1 ) * timeSig - 1;
+          for (let j = index; j < bars.length; j++) {
+            if (bars[index].end.repeat) {
+              let endRepeat = (index + 1 ) * timeSig - 1;
               for (let b = startRepeat; b <= endRepeat; b++){
-              chordProgression.push(beats[b])
-              a++;
+                chordProgression.push(beats[b])
+                a++;
               }
               for (let b = startRepeat; b <= endRepeat; b++){
-              chordProgression.push(beats[b])
+                chordProgression.push(beats[b])
               }
-            } 
+              startRepeat = endRepeat + 1;
+              index++;
+            }
           } 
+          index++;
         } else {
           for (let k = 0; k < timeSig; k++) {
             if (beats[a]) chordProgression.push(beats[a]);

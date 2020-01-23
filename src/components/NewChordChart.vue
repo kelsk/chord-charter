@@ -234,6 +234,7 @@
         </div>
         </div>
       </div>
+      <!--TODO: the chordboard toggle currently prevents user from using chordboard if chordboard is hidden. fix with class bindings.-->
       <div class="chordboard__mini-container" v-if="!chordBoardMiniHidden">
   <ChordBoard ref="chordboard" v-bind:recording="recording" v-bind:nested="true" @beat="recordBeat"></ChordBoard>
   </div>
@@ -343,11 +344,13 @@ export default {
       this.addBeatsToMeasures(beat, i)
     },
     addBeatsToMeasures(beat, id) {
-      let i = this.measures.length - 1;
-      if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
-        this.measures.push([]);
-        i++;
-      } else if (this.measures[i].length === 1) {
+      let i = 0;
+      if (!this.measures) {
+        this.measures = [[]];
+      } else {
+        i = this.measures.length - 1;
+      }
+      if (!this.bars[i]) {
         let newBar = {
           end: {
           repeat: false,
@@ -359,7 +362,24 @@ export default {
           }
         };
         this.bars.push(newBar);
-        this.addBars();
+      }
+      this.addBars();
+      if (this.measures[i].length === this.$store.state.currentChart.details.timeSig.upper) {
+        this.measures.push([]);
+        i++;
+        if (!this.bars[i]) {
+        let newBar = {
+          end: {
+          repeat: false,
+          toCoda: false,
+          },
+          start: {
+            repeat: false,
+            coda: false,
+          }
+        };
+        this.bars.push(newBar);
+      }
       }
       this.measures[i].push({chord: beat, id: id} );
 
@@ -501,9 +521,11 @@ export default {
     },
     startRecording() {
       this.recording = true;
+      this.$store.commit('toggleRecording', true)
     },
     stopRecording() {
-      this.recording = false
+      this.recording = false;
+      this.$store.commit('toggleRecording', false)
     },
     updateFont(font) {
       document.getElementById('chart').setAttribute('style', `font-family: '${font}', sans-serif;`);
