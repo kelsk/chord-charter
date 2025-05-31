@@ -7,7 +7,7 @@ import store from './store';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDUhfSwEZYq6iXinKB3C_B0OWK04c8LlHw",
+  apiKey: process.env.API_KEY,
   authDomain: "chord-charter.firebaseapp.com",
   databaseURL: "https://chord-charter.firebaseio.com",
   projectId: "chord-charter",
