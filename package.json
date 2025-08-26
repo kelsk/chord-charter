@@ -10,7 +10,7 @@
   "dependencies": {
     "core-js": "^3.4.4",
     "firebase": "^7.6.1",
-    "firebase-admin": "^8.9.0",
+    "firebase-admin": "^11.4.1",
     "simple-keyboard": "^2.27.56",
     "tone": "^13.8.25",
     "vue": "^2.6.10",
